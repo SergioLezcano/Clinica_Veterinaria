@@ -1,0 +1,57 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Cierre de Consulta - Médico</title>
+    <link rel="stylesheet" href="{% static 'gestion/css/estilos.css' %}">
+</head>
+<body>
+    <div class="panel-container">
+        <header class="panel-header">
+            <div class="user-info">
+                <span>Atendiendo a: <strong>{{ object.mascota.nombre }}</strong></span>
+                <span class="badge-permiso">Historial Clínico</span>
+            </div>
+        </header>
+
+        <main class="form-wrapper">
+            <div class="form-card" style="max-width: 800px;">
+                <div class="card-header" style="background: #f1f5f9; border-radius: 8px; padding: 20px;">
+                    <h3 style="font-size: 16px; color: #0ea5e9; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.5px;">
+                        🐾 Paciente: {{ object.mascota.nombre }}
+                    </h3>
+                    <p style="font-size: 14px; color: #475569; margin-bottom: 15px; line-height: 1.6;">
+                        <strong>Especie/Raza:</strong> {{ object.mascota.get_sexo_display }} - {{ object.mascota.especie }} ({{ object.mascota.raza }}) <br>
+                        <strong>Edad actual:</strong> {{ object.mascota.edad }}
+                    </p>
+                    <hr style="border: 0; border-top: 1px solid #cbd5e1; margin: 10px 0;">
+                    <h3 style="font-size: 13px; color: #64748b; margin-bottom: 5px;">MOTIVO DE VISITA:</h3>
+                    <p style="font-size: 16px; color: #1e293b; font-weight: 500; margin: 0;">{{ object.motivo }}</p>
+                </div>
+
+                <form method="post" class="custom-form">
+                    {% csrf_token %}
+                    <div class="django-form-fields">
+                        <label for="">PESO</label>
+                        {{ form.peso }}
+                        <label for="">TEMPERATURA</label>
+                        {{ form.temperatura}}
+                        <label>DIAGNÓSTICO MÉDICO</label>
+                        {{ form.diagnostico }}
+                        <br>
+                        <label>TRATAMIENTO INDICADO</label>
+                        {{ form.tratamiento }}
+                        <label>OBSERVACIONES</label>
+                        {{ form.observaciones }}
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn-primary" style="background-color: #d97706;">Finalizar y Guardar</button>
+                        <a href="{% url 'consultas_pendientes' %}" class="btn-secondary">Volver</a>
+                    </div>
+                </form>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

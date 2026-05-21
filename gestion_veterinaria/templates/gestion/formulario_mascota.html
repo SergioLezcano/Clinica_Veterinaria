@@ -1,0 +1,54 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alta de Paciente - Veterinaria</title>
+    <link rel="stylesheet" href="{% static 'gestion/css/estilos.css' %}">
+</head>
+<body>
+
+    <div class="panel-container">
+        <header class="panel-header">
+            <div class="user-info">
+                <span>Operador: <strong>{{ user.username }}</strong></span>
+                <span class="badge-permiso">Registro de Pacientes</span>
+            </div>
+            <form action="{% url 'logout' %}" method="post">
+                {% csrf_token %}
+                <button type="submit" class="btn-logout">Cerrar Sesión</button>
+            </form>
+        </header>
+
+        <main class="form-wrapper">
+            <div class="form-card">
+                <div class="card-header">
+                    <h2>Registrar Nueva Mascota</h2>
+                    <p class="subtitle">Ingresá los datos del paciente y vinculalo a su dueño</p>
+                </div>
+
+                <form method="post" class="custom-form">
+                    {% csrf_token %}
+                    
+                    {% if form.errors %}
+                        <div class="error-box">
+                            Por favor, verificá que los campos ingresados sean correctos.
+                        </div>
+                    {% endif %}
+
+                    <div class="django-form-fields">
+                        {{ form.as_p }}
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn-primary" style="background-color: #0ea5e9;">Dar de Alta</button>
+                        <a href="{% url 'menu_operador' %}" class="btn-secondary">Cancelar</a>
+                    </div>
+                </form>
+            </div>
+        </main>
+    </div>
+
+</body>
+</html>

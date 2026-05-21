@@ -1,0 +1,61 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Caja - Facturas Pendientes</title>
+    <link rel="stylesheet" href="{% static 'gestion/css/estilos.css' %}">
+</head>
+<body>
+    <div class="panel-container">
+        <header class="panel-header">
+            <div class="user-info">
+                <span>Operador: <strong>{{ user.username }}</strong></span>
+            </div>
+            <a href="{% url 'menu_operador' %}" class="btn-clear" style="text-decoration: none; padding: 8px 15px;">Volver al Menú</a>
+        </header>
+
+        <main class="menu-content">
+            <div class="menu-welcome">
+                <h1>Cuentas Corrientes y Facturación</h1>
+                <p>Seleccioná el paciente que se retira del consultorio para registrar el pago</p>
+            </div>
+
+            <div class="results-container" style="margin-top: 20px;">
+                <table class="custom-table">
+                    <thead>
+                        <tr>
+                            <th>N° Factura</th>
+                            <th>Mascota / Paciente</th>
+                            <th>Dueño / Tutor</th>
+                            <th>Monto Total</th>
+                            <th style="text-align: center;">Acción</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for factura in facturas %}
+                        <tr>
+                            <td><strong>#{{ factura.id|stringformat:"06d" }}</strong></td>
+                            <td>{{ factura.consulta.mascota.nombre }} <span style="color: #64748b; font-size: 13px;">({{ factura.consulta.mascota.especie }})</span></td>
+                            <td>{{ factura.consulta.mascota.dueño.nombre }} {{ factura.consulta.mascota.dueño.apellido }}</td>
+                            <td style="color: #10b981; font-weight: bold; font-size: 16px;">${{ factura.monto_total }}</td>
+                            <td style="text-align: center;">
+                                <a href="{% url 'procesar_pago' factura.id %}" class="btn-search" style="background-color: #10b981; text-decoration: none; padding: 6px 15px; font-size: 14px;">
+                                    💵 Cobrar
+                                </a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="5" style="text-align: center; color: #64748b; padding: 30px;">
+                                🎉 No hay cuentas pendientes de cobro. ¡Caja al día!
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

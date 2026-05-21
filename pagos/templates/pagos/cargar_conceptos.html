@@ -1,0 +1,100 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Pre-facturación - Consulta #{{ consulta.id }}</title>
+    <link rel="stylesheet" href="{% static 'gestion/css/estilos.css' %}">
+</head>
+<body>
+    <div class="panel-container">
+        <main class="form-wrapper">
+            <div class="form-card" style="max-width: 600px; border-top: 4px solid #0ea5e9;">
+                
+                <div class="card-header" style="text-align: center; margin-bottom: 20px;">
+                    <h2>Pre-facturación de Atención</h2>
+                    <p>Paciente: <strong>{{ consulta.mascota.nombre }}</strong> | Dueño: {{ consulta.mascota.dueño.nombre }} {{ consulta.mascota.dueño.apellido }}</p>
+                </div>
+
+                <form method="post" class="custom-form">
+                    {% csrf_token %}
+
+                    <div class="conceptos-wrapper">
+                        <h4>📋 Ítems cargados automáticamente:</h4>
+                        <ul>
+                            <li>Honorarios por Consulta Médica Veterinaria — <strong>$10.000,00</strong></li>
+                        </ul>
+                        
+                        <hr>
+
+                        <h4>💉 Seleccione los Medicamentos / Insumos aplicados:</h4>
+                        
+                        <div style="margin-bottom: 15px;">
+                            <input type="text" 
+                                id="buscador-productos" 
+                                placeholder="🔍 Buscar producto por nombre..." 
+                                style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 14px; box-sizing: border-box;">
+                        </div>
+
+                        <div id="lista-productos" class="checkbox-group" style="max-height: 250px; overflow-y: auto; margin-bottom: 20px; border: 1px solid #e2e8f0; padding: 10px; border-radius: 6px;">
+                            {% for producto in medicamentos_disponibles %}
+                                <div class="checkbox-item producto-item" style="margin-bottom: 10px; display: flex; align-items: center;">
+                                    <input type="checkbox" 
+                                        name="medicamentos_seleccionados" 
+                                        value="{{ producto.id }}" 
+                                        id="prod_{{ producto.id }}"
+                                        style="margin-right: 10px; transform: scale(1.2); cursor: pointer;">
+                                    
+                                    <label for="prod_{{ producto.id }}" class="producto-nombre" style="cursor: pointer; font-size: 15px;">
+                                        <strong>{{ producto.nombre }}</strong> — ${{ producto.precio_unitario }} 
+                                        <span style="color: #64748b; font-size: 12px;">({{ producto.get_categoria_display }})</span>
+                                    </label>
+                                </div>
+                            {% empty %}
+                                <p style="color: #64748b; font-style: italic;">No hay medicamentos o vacunas disponibles en el sistema.</p>
+                            {% endfor %}
+                            
+                            <p id="sin-resultados" style="color: #ef4444; font-style: italic; display: none;">No se encontraron productos con ese nombre.</p>
+                        </div>
+                    </div>
+
+                    <script>
+                        document.getElementById('buscador-productos').addEventListener('input', function(e) {
+                            // Convertimos lo que escribe el usuario a minúsculas y le sacamos espacios extra
+                            const terminoBusqueda = e.target.value.toLowerCase().trim();
+                            const items = document.querySelectorAll('.producto-item');
+                            let encontrados = 0;
+
+                            items.forEach(function(item) {
+                                // Buscamos el texto dentro del tag label de cada producto
+                                const nombreProducto = item.querySelector('.producto-nombre').textContent.toLowerCase();
+                                
+                                if (nombreProducto.includes(terminoBusqueda)) {
+                                    item.style.display = 'flex'; // Si coincide, lo mostramos
+                                    encontrados++;
+                                } else {
+                                    item.style.display = 'none';  // Si no coincide, lo ocultamos
+                                }
+                            });
+
+                            // Si no hay ninguna coincidencia, mostramos el cartel de "Sin resultados"
+                            const cartelSinResultados = document.getElementById('sin-resultados');
+                            if (encontrados === 0 && terminoBusqueda !== '') {
+                                cartelSinResultados.style.display = 'block';
+                            } else {
+                                cartelSinResultados.style.display = 'none';
+                            }
+                        });
+                    </script>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn-primary" style="background-color: #0ea5e9;">Enviar Orden a Caja</button>
+                        <a href="{% url 'consultas_pendientes' %}" class="btn-secondary">Volver</a>
+                    </div>
+                </form>
+
+            </div>
+        </main>
+    </div>
+</body>
+</html>

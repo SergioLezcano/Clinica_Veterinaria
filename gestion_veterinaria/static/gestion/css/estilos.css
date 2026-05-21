@@ -1,0 +1,665 @@
+/* Restablecer estilos básicos y definir tipografía */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background-color: #f4f6f9;
+}
+
+/* Contenedor principal que centra la tarjeta vertical y horizontalmente */
+.login-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
+}
+
+/* Tarjeta del formulario */
+.login-card {
+    background: #ffffff;
+    width: 100%;
+    max-width: 400px;
+    padding: 40px 30px;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+}
+
+/* Encabezado */
+.login-header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.login-header h2 {
+    color: #2c3e50;
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+
+.login-header p {
+    color: #7f8c8d;
+    font-size: 14px;
+}
+
+/* Alertas de error */
+.error-message {
+    background-color: #fde8e8;
+    color: #e74c3c;
+    padding: 12px;
+    border-radius: 6px;
+    font-size: 14px;
+    margin-bottom: 20px;
+    border-left: 4px solid #e74c3c;
+}
+
+/* Bloques del formulario (Label + Input) */
+.form-group {
+    margin-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+}
+
+.form-group label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #34495e;
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.form-group input {
+    padding: 12px;
+    font-size: 15px;
+    border: 1px solid #dcdde1;
+    border-radius: 6px;
+    color: #2c3e50;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    outline: none;
+}
+
+/* Efecto cuando hacés click en los inputs */
+.form-group input:focus {
+    border-color: #3498db;
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.15);
+}
+
+/* Botón de ingreso */
+.btn-submit {
+    background-color: #3498db;
+    color: white;
+    border: none;
+    padding: 14px;
+    font-size: 16px;
+    font-weight: 600;
+    border-radius: 6px;
+    cursor: pointer;
+    width: 100%;
+    margin-top: 10px;
+    transition: background-color 0.2s;
+}
+
+/* Efecto Hover para el botón */
+.btn-submit:hover {
+    background-color: #2980b9;
+}
+
+/* Estilos para los formularios automáticos de Django */
+.form-django-inputs p {
+    margin-bottom: 15px;
+    display: flex;
+    flex-direction: column;
+}
+
+.form-django-inputs label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #34495e;
+    margin-bottom: 6px;
+    text-transform: uppercase;
+}
+
+.form-django-inputs input, 
+.form-django-inputs select, 
+.form-django-inputs textarea {
+    padding: 10px;
+    font-size: 15px;
+    border: 1px solid #dcdde1;
+    border-radius: 6px;
+    color: #2c3e50;
+    outline: none;
+}
+
+.form-django-inputs input:focus, 
+.form-django-inputs select:focus, 
+.form-django-inputs textarea:focus {
+    border-color: #3498db;
+}
+
+/* --- CONFIGURACIÓN DEL PANEL DE TRABAJO --- */
+.panel-container {
+    min-height: 100vh;
+    background-color: #f8fafc;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Barra superior (Navbar del Operador) */
+.panel-header {
+    background-color: #ffffff;
+    padding: 15px 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.user-info {
+    font-size: 15px;
+    color: #334155;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.badge-permiso {
+    background-color: #e0f2fe;
+    color: #0369a1;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.btn-logout {
+    background: none;
+    border: none;
+    color: black;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: color 0.2s;
+}
+
+.btn-logout:hover {
+    color: #ef4444;
+}
+
+/* Contenedor del Formulario */
+.form-wrapper {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 40px 20px;
+}
+
+.form-card {
+    background-color: #ffffff;
+    width: 100%;
+    max-width: 600px; /* Un poco más ancho para albergar el textarea cómodamente */
+    padding: 35px;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+    border: 1px solid #e2e8f0;
+}
+
+.card-header {
+    margin-bottom: 25px;
+}
+
+.card-header h2 {
+    color: #0f172a;
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 6px;
+}
+
+.subtitle {
+    color: #64748b;
+    font-size: 14px;
+}
+
+/* --- ESTILIZACIÓN DE ENTRADAS DE DJANGO ({{ form.as_p }}) --- */
+.django-form-fields p {
+    margin-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+}
+
+.django-form-fields label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #475569;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Estilo unificado para inputs, el select de mascotas y el textarea de observaciones */
+.django-form-fields input,
+.django-form-fields select,
+.django-form-fields textarea {
+    width: 100%;
+    padding: 12px;
+    font-size: 15px;
+    color: #334155;
+    background-color: #ffffff;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+/* El select de Mascota */
+.django-form-fields select {
+    cursor: pointer;
+    appearance: none; /* Quita el estilo por defecto del sistema operativo */
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 16px;
+    padding-right: 40px;
+}
+
+/* El cuadro de Observaciones de la Consulta */
+.django-form-fields textarea {
+    min-height: 150px;
+    resize: vertical; /* Permite al usuario agrandarlo solo hacia abajo */
+    font-family: inherit;
+}
+
+/* Enfoque (Focus) de los elementos */
+.django-form-fields input:focus,
+.django-form-fields select:focus,
+.django-form-fields textarea:focus {
+    border-color: #0ea5e9;
+    box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.12);
+}
+
+/* Cajas de Error */
+.error-box {
+    background-color: #fef2f2;
+    color: #dc2626;
+    border-left: 4px solid #dc2626;
+    padding: 12px;
+    border-radius: 6px;
+    font-size: 14px;
+    margin-bottom: 20px;
+}
+
+/* --- BOTONES DE ACCIÓN --- */
+.form-actions {
+    display: flex;
+    gap: 15px;
+    margin-top: 10px;
+}
+
+.btn-primary {
+    background-color: #0ea5e9;
+    color: #ffffff;
+    border: none;
+    padding: 12px 24px;
+    font-size: 15px;
+    font-weight: 600;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    flex: 2;
+}
+
+.btn-primary:hover {
+    background-color: #0284c7;
+}
+
+.btn-secondary {
+    background-color: #f1f5f9;
+    color: #475569;
+    border: 1px solid #e2e8f0;
+    padding: 12px 24px;
+    font-size: 15px;
+    font-weight: 600;
+    border-radius: 8px;
+    text-align: center;
+    text-decoration: none;
+    transition: background-color 0.2s;
+    flex: 1;
+}
+
+.btn-secondary:hover {
+    background-color: #e2e8f0;
+    color: #1e293b;
+}
+
+/* --- ESTILOS DEL MENÚ PRINCIPAL --- */
+.menu-content {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 40px 20px;
+    width: 100%;
+}
+
+.menu-welcome {
+    margin-bottom: 40px;
+    text-align: center;
+}
+
+.menu-welcome h1 {
+    color: #0f172a;
+    font-size: 32px;
+    margin-bottom: 8px;
+}
+
+.menu-welcome p {
+    color: #64748b;
+    font-size: 16px;
+}
+
+/* Grilla de 3 columnas */
+.menu-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 25px;
+}
+
+.menu-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 30px;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.menu-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+.menu-card h3 {
+    color: #1e293b;
+    font-size: 20px;
+    margin-bottom: 12px;
+}
+
+.menu-card p {
+    color: #64748b;
+    font-size: 14px;
+    line-height: 1.5;
+    margin-bottom: 25px;
+    flex: 1; /* Empuja el botón hacia abajo para que queden alineados */
+}
+
+/* Botones del menú */
+.btn-card {
+    display: block;
+    text-align: center;
+    background-color: #f1f5f9;
+    color: #334155;
+    padding: 12px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 14px;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+.btn-card:hover {
+    background-color: #cbd5e1;
+    color: #0f172a;
+}
+
+/* Tarjeta destacada para Consultas */
+.primary-card {
+    border-color: #bae6fd;
+    background-color: #f0f9ff;
+}
+.primary-card .btn-card {
+    background-color: #0ea5e9;
+    color: #ffffff;
+}
+.primary-card .btn-card:hover {
+    background-color: #0284c7;
+}
+
+/* --- CONFIGURACIONES ESPECÍFICAS DE COLOR PARA LOS MENÚS --- */
+
+/* Asegura que los enlaces de los botones de las tarjetas no tengan subrayado nativo */
+.btn-card {
+    text-decoration: none;
+    display: block;
+    text-align: center;
+    padding: 12px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 14px;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+/* 💻 ESTILOS DE TARJETAS DEL OPERADOR (Azul/Celeste profesional) */
+.menu-operador-section .primary-card {
+    border-color: #bae6fd;
+    background-color: #f0f9ff;
+}
+
+.menu-operador-section .primary-card .btn-card {
+    background-color: #0ea5e9;
+    color: #ffffff;
+}
+
+.menu-operador-section .primary-card .btn-card:hover {
+    background-color: #0284c7;
+}
+
+/* 🩺 ESTILOS DE TARJETAS DEL ADMINISTRADOR / MÉDICO (Ámbar/Dorado) */
+.menu-admin-section .alert-card {
+    border-color: #fef3c7; 
+    background-color: #fffbeb;
+}
+
+.menu-admin-section .alert-card .btn-card {
+    background-color: #d97706; 
+    color: #ffffff;
+}
+
+.menu-admin-section .alert-card .btn-card:hover {
+    background-color: #b45309;
+}
+
+/* Estilo por defecto para las tarjetas secundarias de ambos menús (Gris sutil) */
+.menu-card:not(.primary-card):not(.alert-card) .btn-card {
+    background-color: #f1f5f9;
+    color: #334155;
+    border: 1px solid #e2e8f0;
+}
+
+.menu-card:not(.primary-card):not(.alert-card) .btn-card:hover {
+    background-color: #e2e8f0;
+    color: #0f172a;
+}
+
+/* --- COMPONENTES DEL BUSCADOR --- */
+.search-container {
+    max-width: 600px;
+    margin: 0 auto 30px auto;
+}
+
+.search-form {
+    display: flex;
+    gap: 10px;
+}
+
+.search-form input {
+    flex: 1;
+    padding: 12px 16px;
+    font-size: 15px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.search-form input:focus {
+    border-color: #0ea5e9;
+}
+
+.btn-search {
+    background-color: #334155;
+    color: #ffffff;
+    border: none;
+    padding: 12px 20px;
+    font-size: 14px;
+    font-weight: 600;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.btn-search:hover {
+    background-color: #0f172a;
+}
+
+.btn-clear {
+    background-color: #f1f5f9;
+    color: #64748b;
+    border: 1px solid #cbd5e1;
+    padding: 12px 15px;
+    font-size: 14px;
+    text-decoration: none;
+    border-radius: 8px;
+    line-height: 1.3;
+}
+
+/* --- TABLA DE RESULTADOS --- */
+.results-container {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 25px;
+    margin-bottom: 30px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02);
+}
+
+.results-container h3 {
+    font-size: 16px;
+    color: #475569;
+    margin-bottom: 15px;
+}
+
+.custom-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+    font-size: 14px;
+}
+
+.custom-table th, .custom-table td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.custom-table th {
+    background-color: #f8fafc;
+    color: #64748b;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 11px;
+    letter-spacing: 0.5px;
+}
+
+.custom-table td {
+    color: #334155;
+}
+
+.badge-exists {
+    background-color: #fef3c7;
+    color: #d97706;
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.no-results {
+    background-color: #f0fdf4;
+    color: #16a34a;
+    padding: 15px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    border: 1px solid #bbf7d0;
+}
+
+/* Estilo para el input del calendario */
+input[type="date"].input-calendario {
+    cursor: pointer;
+    font-family: inherit;
+    position: relative;
+}
+
+/* Estilizamos el icono del calendario (opcional) */
+input[type="date"]::-webkit-calendar-picker-indicator {
+    background-color: transparent;
+    cursor: pointer;
+    filter: invert(0.5); /* Le da un tono grisáceo al icono */
+    padding: 2px;
+}
+
+.django-form-fields input[type="date"]:focus {
+    border-color: #0ea5e9;
+    box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.12);
+}
+
+/* Estructura base de la tarjeta */
+.ficha-clinica {
+    width: 100%;
+    background: #ffffff;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    text-align: left;
+    padding: 20px;
+    border-left: 5px solid #cbd5e1; /* Borde gris por defecto */
+}
+
+/* Variaciones de color según el estado del paciente */
+.ficha-completada {
+    border-left-color: #10b981; /* Verde */
+}
+
+.ficha-pendiente {
+    border-left-color: #f59e0b; /* Ámbar/Dorado */
+}
+
+.ficha-cancelada {
+    border-left-color: #ef4444; /* Rojo */
+}
+
+/* Seccion reporte estadistico */
+
+/* Contenedor gris de la barra */
+.progreso-barra-contenedor {
+    width: 100%;
+    background-color: #e2e8f0;
+    border-radius: 9999px;
+    height: 10px;
+    overflow: hidden;
+}
+
+/* Barra interna azul que lee la variable de Django de forma segura */
+.progreso-barra-interna {
+    width: var(--porcentaje, 0%); /* ⚡ Lee la variable --porcentaje inyectada en el HTML */
+    background-color: #0ea5e9;
+    height: 100%;
+    border-radius: 9999px;
+    transition: width 0.3s ease; /* Le da una animación suave al cargar */
+}

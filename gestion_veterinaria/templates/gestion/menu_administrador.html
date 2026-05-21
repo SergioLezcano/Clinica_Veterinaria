@@ -1,0 +1,58 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Panel Médico - Veterinaria</title>
+    <link rel="stylesheet" href="{% static 'gestion/css/estilos.css' %}">
+</head>
+<body>
+    <div class="panel-container">
+        <header class="panel-header">
+            <div class="user-info">
+                <span>Médico: <strong>{{ user.username }}</strong></span>
+                <span class="badge-permiso" style="background-color: #fef3c7; color: #b45309;">Administrador</span>
+            </div>
+            <form action="{% url 'logout' %}" method="post">
+                {% csrf_token %}
+                <button type="submit" class="btn-logout">Cerrar Sesión</button>
+            </form>
+        </header>
+
+        <main class="menu-content menu-admin-section">
+            <div class="menu-welcome">
+                <h1>Panel de Control Veterinario</h1>
+                <p>Sección clínica, atención en tiempo real e historiales médicos</p>
+            </div>
+
+            <div class="menu-grid">
+                
+                <div class="menu-card alert-card" style="border-color: #fef3c7; background-color: #fffbeb;">
+                    <h3>🩺 1. Sala de Espera Virtual</h3>
+                    <p>Revisar la lista de pacientes derivados por recepción. Desde aquí se realiza el pesaje, toma de temperatura y diagnóstico.</p>
+                    <a href="{% url 'consultas_pendientes' %}" class="btn-card" style="background-color: #d97706; color: white;">Ver Pacientes en Espera</a>
+                </div>
+                
+                <div class="menu-card">
+                    <h3>📂 2. Historias Clínicas</h3>
+                    <p>Buscar pacientes registrados para auditar, revisar consultas pasadas, tratamientos anteriores o evoluciones crónicas.</p>
+                    <a href="{% url 'historial_clinico' %}" class="btn-card">Buscar Fichas Médicas</a>
+                </div>
+
+                <div class="menu-card">
+                    <h3>📊 3. Reportes Estadísticos</h3>
+                    <p>Visualizar métricas generales del consultorio, volumen de atenciones diarias y auditoría del sistema.</p>
+                    <a href="{% url 'reportes_estadisticos' %}" class="btn-card">Ver Reportes</a>
+                </div>
+
+                <div class="menu-card" style="border-color: #e2e8f0;">
+                    <h3>👥 Gestión de Operadores</h3>
+                    <p>Administrar el personal de recepción, dar de alta nuevos usuarios o suspender accesos de forma inmediata.</p>
+                    <a href="{% url 'gestion_operadores' %}" class="btn-card" style="background-color: #3b82f6; color: white;">Administrar Personal</a>
+                </div>
+
+            </div>
+        </main>
+    </div>
+</body>
+</html>

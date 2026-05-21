@@ -1,0 +1,77 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Reportes Estadísticos - Administrador</title>
+    <link rel="stylesheet" href="{% static 'gestion/css/estilos.css' %}">
+</head>
+<body>
+    <div class="panel-container">
+        <header class="panel-header">
+            <div class="user-info">
+                <span>Médico: <strong>{{ user.username }}</strong></span>
+                <span class="badge-permiso" style="background-color: #fef3c7; color: #b45309;">Administrador</span>
+            </div>
+            <a href="{% url 'menu_administrador' %}" class="btn-clear" style="text-decoration: none; padding: 8px 15px;">Volver al Panel</a>
+        </header>
+
+        <main class="menu-content menu-admin-section">
+            <div class="menu-welcome">
+                <h1>Métricas y Rendimiento Clínico</h1>
+                <p>Análisis simple del volumen de atención y demanda del consultorio</p>
+            </div>
+
+            <h3 style="color: #475569; margin-bottom: 15px;">⚡ Actividad de Hoy</h3>
+            <div class="menu-grid" style="grid-template-columns: repeat(2, 1fr); margin-bottom: 35px;">
+                <div class="menu-card" style="border-left: 5px solid #10b981; background: #ffffff; text-align: center; padding: 25px;">
+                    <span style="font-size: 32px; font-weight: bold; color: #10b981;">{{ hoy.atendidos }}</span>
+                    <h4 style="margin: 5px 0 0 0; color: #1e293b;">Pacientes Atendidos Hoy</h4>
+                </div>
+                <div class="menu-card" style="border-left: 5px solid #f59e0b; background: #ffffff; text-align: center; padding: 25px;">
+                    <span style="font-size: 32px; font-weight: bold; color: #f59e0b;">{{ hoy.espera }}</span>
+                    <h4 style="margin: 5px 0 0 0; color: #1e293b;">En Sala de Espera</h4>
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 25px;">
+                
+                <div class="menu-card" style="background: #ffffff; text-align: left; padding: 20px;">
+                    <h3 style="margin-top: 0; color: #1e293b; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px;">📋 Volumen Histórico</h3>
+                    <div style="margin-top: 15px;">
+                        <p style="display: flex; justify-content: space-between; font-size: 15px; margin: 12px 0;">
+                            <span>✔️ Consultas Exitosas:</span> <strong>{{ totales.completadas }}</strong>
+                        </p>
+                        <p style="display: flex; justify-content: space-between; font-size: 15px; margin: 12px 0;">
+                            <span>⏳ Pacientes Totales en Espera:</span> <strong>{{ totales.en_espera }}</strong>
+                        </p>
+                        <p style="display: flex; justify-content: space-between; font-size: 15px; margin: 12px 0; color: #ef4444;">
+                            <span>❌ Turnos Cancelados/Bajas:</span> <strong>{{ totales.canceladas }}</strong>
+                        </p>
+                    </div>
+                </div>
+
+                <div class="menu-card" style="background: #ffffff; text-align: left; padding: 20px;">
+                    <h3 style="margin-top: 0; color: #1e293b; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px;">🐕 Demanda por Especie</h3>
+                    <div style="margin-top: 15px;">
+                        {% for esp in especies %}
+                            <div style="margin-bottom: 15px;">
+                                <div style="display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 5px;">
+                                    <strong>{{ esp.nombre }}</strong>
+                                    <span style="color: #64748b;">{{ esp.cantidad }} ({{ esp.porcentaje }}%)</span>
+                                </div>
+                                <div class="progreso-barra-contenedor">
+                                    <div class="progreso-barra-interna" style="--porcentaje: {{ esp.porcentaje }}%;"></div>
+                                </div>
+                            </div>
+                        {% empty %}
+                            <p style="color: #64748b; font-size: 14px; text-align: center; padding-top: 20px;">No hay datos clínicos suficientes todavía.</p>
+                        {% endfor %}
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+</body>
+</html>

@@ -1,0 +1,82 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Gestión de Personal - Administrador</title>
+    <link rel="stylesheet" href="{% static 'gestion/css/estilos.css' %}">
+</head>
+<body>
+    <div class="panel-container">
+        <header class="panel-header">
+            <div class="user-info">
+                <span>Médico: <strong>{{ user.username }}</strong></span>
+                <span class="badge-permiso" style="background-color: #fef3c7; color: #b45309;">Administrador</span>
+            </div>
+            <a href="{% url 'menu_administrador' %}" class="btn-clear" style="text-decoration: none; padding: 8px 15px;">Volver al Panel</a>
+        </header>
+
+        <main class="menu-content menu-admin-section">
+            <div class="menu-welcome" style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #e2e8f0; padding-bottom: 15px;">
+                <div>
+                    <h1 style="margin: 0;">Personal de Recepción</h1>
+                    <p style="margin: 5px 0 0 0;">Altas, bajas y control de accesos al sistema</p>
+                </div>
+                <a href="{% url 'alta_operador' %}" class="btn-search" style="background-color: #10b981; text-decoration: none; padding: 12px 20px;">
+                    ➕ Registrar Nuevo Operador
+                </a>
+            </div>
+
+            <div class="results-container" style="margin-top: 25px;">
+                <table class="custom-table">
+                    <thead>
+                        <tr>
+                            <th>Usuario</th>
+                            <th>Nombre Completo</th>
+                            <th>Email</th>
+                            <th style="text-align: center;">Estado</th>
+                            <th style="text-align: center;">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for perfil in operadores %}
+                        <tr {% if not perfil.user.is_active %}style="background-color: #f8fafc; opacity: 0.7;"{% endif %}>
+                            <td><strong>{{ perfil.user.username }}</strong></td>
+                            <td>{{ perfil.user.first_name }} {{ perfil.user.last_name }}</td>
+                            <td>{{ perfil.user.email }}</td>
+                            <td style="text-align: center;">
+                                {% if perfil.user.is_active %}
+                                    <span class="badge-exists" style="background-color: #d1fae5; color: #065f46;">Activo</span>
+                                {% else %}
+                                    <span class="badge-logout" style="background-color: #fee2e2; color: #991b1b; padding: 3px 8px; border-radius: 4px; font-size: 12px;">Inactivo (De Baja)</span>
+                                {% endif %}
+                            </td>
+                            <td style="text-align: center;">
+                                <form action="{% url 'cambiar_estado_operador' perfil.user.id %}" method="post" style="margin: 0;">
+                                    {% csrf_token %}
+                                    {% if perfil.user.is_active %}
+                                        <button type="submit" class="btn-logout" style="background-color: #ef4444; border: none; padding: 6px 12px; font-size: 13px; cursor: pointer;">
+                                            🚫 Dar de Baja
+                                        </button>
+                                    {% else %}
+                                        <button type="submit" class="btn-search" style="background-color: #3b82f6; border: none; padding: 6px 12px; font-size: 13px; cursor: pointer;">
+                                            🔄 Reactivar
+                                        </button>
+                                    {% endif %}
+                                </form>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="5" style="text-align: center; color: #64748b; padding: 20px;">
+                                No hay operadores registrados en el sistema todavía.
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

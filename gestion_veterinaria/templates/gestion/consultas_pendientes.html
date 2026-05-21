@@ -1,0 +1,75 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Pacientes en Espera - Veterinario</title>
+    <link rel="stylesheet" href="{% static 'gestion/css/estilos.css' %}">
+</head>
+<body>
+    <div class="panel-container">
+        <header class="panel-header">
+            <div class="user-info">
+                <span>Médico: <strong>{{ user.username }}</strong></span>
+                <span class="badge-permiso" style="background-color: #fef3c7; color: #b45309;">Sala de Espera</span>
+            </div>
+            <form action="{% url 'logout' %}" method="post">{% csrf_token %}<button type="submit" class="btn-logout">Cerrar Sesión</button></form>
+        </header>
+
+        <main class="menu-content">
+            <div class="menu-welcome">
+                <h1>Pacientes Pendientes</h1>
+                <p>Lista de mascotas listas para diagnóstico</p>
+            </div>
+
+            <div class="results-container">
+                {% if pendientes %}
+                    <table class="custom-table">
+                        <thead>
+                            <tr>
+                                <th>Fecha/Hora</th>
+                                <th>Mascota (Edad)</th>
+                                <th>Especie/Raza</th>
+                                <th>Motivo</th>
+                                <th style="text-align: center;">Acciones</th></tr>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for consulta in pendientes %}
+                            <tr>
+                                <td>{{ consulta.fecha_consulta|date:"d/m/Y H:i" }}</td>
+                                <td>
+                                    <strong>{{ consulta.mascota.nombre }}</strong>
+                                    <span style="color: #64748b; font-size: 13px;">({{ consulta.mascota.edad }})</span>
+                                </td>
+                                <td><strong>{{ consulta.mascota.especie }} ({{ consulta.mascota.raza }})</strong></td>
+                                <td>{{ consulta.motivo|truncatechars:30 }}</td>
+                                <td style="display: flex; gap: 10px; justify-content: center; align-items: center;">
+                                    <a href="{% url 'cerrar_consulta' consulta.id %}" class="btn-search" style="text-decoration:none; background-color:#d97706; padding: 6px 12px; font-size: 13px;">
+                                        🩺 Atender
+                                    </a>
+                                    
+                                    <form action="{% url 'cancelar_consulta' consulta.id %}" method="post" style="margin: 0;" onsubmit="return confirm('¿Estás seguro de que querés cancelar esta preconsulta?');">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn-logout" style="background-color: #f60c0c; padding: 6px 12px; font-size: 13px; border: none; margin: 0; cursor: pointer; border-radius: 8px;">
+                                            ❌ Cancelar
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% else %}
+                    <div class="no-results" style="background-color: #f8fafc; color: #64748b; border-color: #e2e8f0;">
+                        ☕ No hay pacientes en espera en este momento.
+                    </div>
+                {% endif %}
+            </div>
+            <div style="text-align: center;">
+                <a href="{% url 'menu_administrador' %}" class="btn-secondary" style="display:inline-block; width:200px; background-color: #10b981;">Volver al Menú</a>
+            </div>
+        </main>
+    </div>
+</body>
+</html>
