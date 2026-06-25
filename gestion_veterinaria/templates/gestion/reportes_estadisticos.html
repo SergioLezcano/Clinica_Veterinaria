@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Reportes Estadísticos - Administrador</title>
-    <link rel="stylesheet" href="{% static 'gestion/css/estilos.css' %}">
+    <link rel="stylesheet" href="{% static 'gestion/css/estilos.css' %}?v=10">
 </head>
 <body>
     <div class="panel-container">
@@ -13,7 +13,7 @@
                 <span>Médico: <strong>{{ user.username }}</strong></span>
                 <span class="badge-permiso" style="background-color: #fef3c7; color: #b45309;">Administrador</span>
             </div>
-            <a href="{% url 'menu_administrador' %}" class="btn-clear" style="text-decoration: none; padding: 8px 15px;">Volver al Panel</a>
+            <a href="{% url 'menu_administrador' %}" class="btn-clear btn-menu">Volver al Panel</a>
         </header>
 
         <main class="menu-content menu-admin-section">

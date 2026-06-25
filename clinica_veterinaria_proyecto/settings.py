@@ -111,7 +111,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'es-ar'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'America/Argentina/Buenos_Aires'
 
 USE_I18N = True
 
@@ -132,5 +132,5 @@ LOGIN_REDIRECT_URL = 'redireccion_rol'
 
 LOGIN_URL = 'login'
 LOGOUT_REDIRECT_URL = 'login'
-# 🟢 Configuración global para los IDs autoincrementales de la Base de Datos
+# Configuración global para los IDs autoincrementales de la Base de Datos
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'

@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Panel Médico - Veterinaria</title>
-    <link rel="stylesheet" href="{% static 'gestion/css/estilos.css' %}">
+    <link rel="stylesheet" href="{% static 'gestion/css/estilos.css' %}?v=10">
 </head>
 <body>
     <div class="panel-container">
@@ -36,13 +36,13 @@
                 <div class="menu-card">
                     <h3>📂 2. Historias Clínicas</h3>
                     <p>Buscar pacientes registrados para auditar, revisar consultas pasadas, tratamientos anteriores o evoluciones crónicas.</p>
-                    <a href="{% url 'historial_clinico' %}" class="btn-card">Buscar Fichas Médicas</a>
+                    <a href="{% url 'historial_clinico' %}" class="btn-card" style="background-color: #3b82f6; color: white;">Buscar Fichas Médicas</a>
                 </div>
 
                 <div class="menu-card">
                     <h3>📊 3. Reportes Estadísticos</h3>
                     <p>Visualizar métricas generales del consultorio, volumen de atenciones diarias y auditoría del sistema.</p>
-                    <a href="{% url 'reportes_estadisticos' %}" class="btn-card">Ver Reportes</a>
+                    <a href="{% url 'reportes_estadisticos' %}" class="btn-card" style="background-color: #3b82f6; color: white;">Ver Reportes</a>
                 </div>
 
                 <div class="menu-card" style="border-color: #e2e8f0;">

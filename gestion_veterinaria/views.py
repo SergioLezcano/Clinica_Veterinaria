@@ -3,7 +3,7 @@ from django.views.generic import TemplateView, ListView, CreateView, UpdateView
 from django.urls import reverse_lazy
 
 from .models import Mascota, Dueño, HistoriaClinica
-from .forms import MascotaForm, PreConsultaForm, CierreConsultaForm
+from .forms import MascotaForm, PreConsultaForm
 from django.shortcuts import get_object_or_404, redirect
 from django.db.models import Q
 
@@ -13,7 +13,6 @@ from .forms import RegistroOperadorForm
 
 from django.db.models import Count
 from django.utils import timezone
-from pagos.models import Factura, DetalleFactura
 
 # ==========================================
 # 🔄 REDIRECCIÓN E INICIO (POST-LOGIN)
