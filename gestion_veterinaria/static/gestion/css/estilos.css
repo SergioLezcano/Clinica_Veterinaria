@@ -1,4 +1,29 @@
 /* Restablecer estilos básicos y definir tipografía */
+@font-face {
+    font-family: 'Segoe Ui';
+    src: url('../fonts/Segoe-UI.ttf') format('ttf');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Segoe Ui Italic';
+    src: url('../fonts/Segoe-UI-Italic.ttf') format('ttf');
+    font-weight: 500;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Segoe Ui Bold';
+    src: url('../fonts/Segoe-UI-Bold.ttf') format('ttf');
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+}
+
+
 * {
     box-sizing: border-box;
     margin: 0;
@@ -125,8 +150,8 @@ body {
     text-transform: uppercase;
 }
 
-.form-django-inputs input, 
-.form-django-inputs select, 
+.form-django-inputs input,
+.form-django-inputs select,
 .form-django-inputs textarea {
     padding: 10px;
     font-size: 15px;
@@ -136,8 +161,8 @@ body {
     outline: none;
 }
 
-.form-django-inputs input:focus, 
-.form-django-inputs select:focus, 
+.form-django-inputs input:focus,
+.form-django-inputs select:focus,
 .form-django-inputs textarea:focus {
     border-color: #3498db;
 }
@@ -157,7 +182,7 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
     border-bottom: 1px solid #e2e8f0;
 }
 
@@ -204,7 +229,8 @@ body {
 .form-card {
     background-color: #ffffff;
     width: 100%;
-    max-width: 600px; /* Un poco más ancho para albergar el textarea cómodamente */
+    max-width: 600px;
+    /* Un poco más ancho para albergar el textarea cómodamente */
     padding: 35px;
     border-radius: 12px;
     box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
@@ -261,7 +287,8 @@ body {
 /* El select de Mascota */
 .django-form-fields select {
     cursor: pointer;
-    appearance: none; /* Quita el estilo por defecto del sistema operativo */
+    appearance: none;
+    /* Quita el estilo por defecto del sistema operativo */
     background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
     background-repeat: no-repeat;
     background-position: right 12px center;
@@ -272,7 +299,8 @@ body {
 /* El cuadro de Observaciones de la Consulta */
 .django-form-fields textarea {
     min-height: 150px;
-    resize: vertical; /* Permite al usuario agrandarlo solo hacia abajo */
+    resize: vertical;
+    /* Permite al usuario agrandarlo solo hacia abajo */
     font-family: inherit;
 }
 
@@ -396,7 +424,8 @@ body {
     font-size: 14px;
     line-height: 1.5;
     margin-bottom: 25px;
-    flex: 1; /* Empuja el botón hacia abajo para que queden alineados */
+    flex: 1;
+    /* Empuja el botón hacia abajo para que queden alineados */
 }
 
 /* Botones del menú */
@@ -423,10 +452,12 @@ body {
     border-color: #bae6fd;
     background-color: #f0f9ff;
 }
+
 .primary-card .btn-card {
     background-color: #0ea5e9;
     color: #ffffff;
 }
+
 .primary-card .btn-card:hover {
     background-color: #0284c7;
 }
@@ -462,12 +493,12 @@ body {
 
 /* 🩺 ESTILOS DE TARJETAS DEL ADMINISTRADOR / MÉDICO (Ámbar/Dorado) */
 .menu-admin-section .alert-card {
-    border-color: #fef3c7; 
+    border-color: #fef3c7;
     background-color: #fffbeb;
 }
 
 .menu-admin-section .alert-card .btn-card {
-    background-color: #d97706; 
+    background-color: #d97706;
     color: #ffffff;
 }
 
@@ -562,7 +593,8 @@ body {
     font-size: 14px;
 }
 
-.custom-table th, .custom-table td {
+.custom-table th,
+.custom-table td {
     padding: 12px 15px;
     text-align: left;
     border-bottom: 1px solid #f1f5f9;
@@ -611,7 +643,8 @@ input[type="date"].input-calendario {
 input[type="date"]::-webkit-calendar-picker-indicator {
     background-color: transparent;
     cursor: pointer;
-    filter: invert(0.5); /* Le da un tono grisáceo al icono */
+    filter: invert(0.5);
+    /* Le da un tono grisáceo al icono */
     padding: 2px;
 }
 
@@ -625,23 +658,27 @@ input[type="date"]::-webkit-calendar-picker-indicator {
     width: 100%;
     background: #ffffff;
     margin-bottom: 20px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
     text-align: left;
     padding: 20px;
-    border-left: 5px solid #cbd5e1; /* Borde gris por defecto */
+    border-left: 5px solid #cbd5e1;
+    /* Borde gris por defecto */
 }
 
 /* Variaciones de color según el estado del paciente */
 .ficha-completada {
-    border-left-color: #10b981; /* Verde */
+    border-left-color: #10b981;
+    /* Verde */
 }
 
 .ficha-pendiente {
-    border-left-color: #f59e0b; /* Ámbar/Dorado */
+    border-left-color: #f59e0b;
+    /* Ámbar/Dorado */
 }
 
 .ficha-cancelada {
-    border-left-color: #ef4444; /* Rojo */
+    border-left-color: #ef4444;
+    /* Rojo */
 }
 
 /* Seccion reporte estadistico */
@@ -657,9 +694,11 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 
 /* Barra interna azul que lee la variable de Django de forma segura */
 .progreso-barra-interna {
-    width: var(--porcentaje, 0%); /* ⚡ Lee la variable --porcentaje inyectada en el HTML */
+    width: var(--porcentaje, 0%);
+    /* ⚡ Lee la variable --porcentaje inyectada en el HTML */
     background-color: #0ea5e9;
     height: 100%;
     border-radius: 9999px;
-    transition: width 0.3s ease; /* Le da una animación suave al cargar */
+    transition: width 0.3s ease;
+    /* Le da una animación suave al cargar */
 }
