@@ -4,7 +4,7 @@ from pagos.views import CargarConceptosConsultaView
 
 urlpatterns = [
     # 🔄 Redirección intermedia post-login
-    path('redireccion/', views.redireccionar_segun_rol, name='redireccion_rol'),
+    path('redireccion/', views.redireccionar_segun_rol, name='redireccion_rol'), # type: ignore
     
     # 🖥️ Menús principales de inicio (Dashboards)
     path('menu-operador/', views.MenuOperadorView.as_view(), name='menu_operador'),
@@ -20,7 +20,7 @@ urlpatterns = [
     # 🩺 Flujo Clínico del Médico (Sala de espera)
     path('sala-espera/', views.ConsultasPendientesListView.as_view(), name='consultas_pendientes'),
     
-    # 1️⃣ PASO CLÍNICO: El médico carga peso, diagnóstico, etc. (Tu formulario actual)
+    # 1️⃣ PASO CLÍNICO: El médico carga peso, diagnóstico, etc.
     path('atender-consulta/<int:pk>/', views.AtenderConsultaView.as_view(), name='cerrar_consulta'), 
 
     # 2️⃣ PASO FINANCIERO: Redirección inmediata automática post-guardado clínico

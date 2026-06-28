@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from django.db import models
 from django.db.models import Sum
 from gestion_veterinaria.models import HistoriaClinica
@@ -15,7 +17,7 @@ class Factura(models.Model):
     fecha_pago = models.DateTimeField(null=True, blank=True)
     metodo_pago = models.CharField(max_length=2, choices=[('EF', 'Efectivo'), ('TD', 'Tarjeta de Débito'), ('TC', 'Tarjeta de Crédito'), ('TF', 'Transferencia')], null=True, blank=True)
     estado = models.CharField(max_length=2, choices=ESTADOS_PAGO, default='PE')
-    monto_total = models.DecimalField(max_digits=10, decimal_places=2, default=0.00) #Guarda la suma total
+    monto_total = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal('0.00')) #Guarda la suma total
 
     def actualizar_total(self):
         """
@@ -23,14 +25,14 @@ class Factura(models.Model):
         y actualiza el monto_total de la cabecera.
         """
         # Sumamos el campo 'subtotal' de todos los DetalleFactura que apunten a esta factura
-        total_detalles = self.detalles.aggregate(total=Sum('subtotal'))['total'] or 0.00
+        total_detalles = self.detalles.aggregate(total=Sum('subtotal'))['total'] or '0.00'  # type: ignore
         
         # Guardamos el total calculado impactando directamente en la base de datos
         self.monto_total = total_detalles
         self.save(update_fields=['monto_total'])
 
     def __str__(self):
-        return f"Factura #{self.id} - Consulta #{self.consulta.id} ({self.get_estado_display()})"
+        return f"Factura #{self.pk} - Consulta #{self.consulta.pk} ({self.get_estado_display()})" # type: ignore
 
 
 class DetalleFactura(models.Model):
@@ -57,4 +59,4 @@ class DetalleFactura(models.Model):
         self.factura.actualizar_total()
 
     def __str__(self):
-        return f"{self.producto.nombre} x {self.cantidad} (Factura #{self.factura.id})"
+        return f"{self.producto.nombre} x {self.cantidad} (Factura #{self.factura.pk})"

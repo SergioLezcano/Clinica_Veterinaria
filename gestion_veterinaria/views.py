@@ -2,48 +2,37 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import TemplateView, ListView, CreateView, UpdateView
 from django.urls import reverse_lazy
 
+from gestion_veterinaria.mixins.admin_required import AdminRequiredMixin
+
 from .models import Mascota, Dueño, HistoriaClinica
 from .forms import MascotaForm, PreConsultaForm
-from django.shortcuts import get_object_or_404, redirect
-from django.db.models import Q
+from django.shortcuts import redirect
 
-from django.contrib.auth.models import User
 from .models import PerfilUsuario
 from .forms import RegistroOperadorForm
 
-from django.db.models import Count
-from django.utils import timezone
+from .services.reporte_service import ReporteService
+from .services.historia_service import HistoriaService
+from .services.usuario_service import UsuarioService
+from .services.mascota_service import MascotaService
+from .services.auth_service import AuthService
 
 # ==========================================
 # 🔄 REDIRECCIÓN E INICIO (POST-LOGIN)
 # ==========================================
 
 def redireccionar_segun_rol(request):
-    if not request.user.is_authenticated:
-        return redirect('login')
-    
-    try:
-        perfil = request.user.perfilusuario
-        # Maneja tanto 'ADMIN' como las variantes de operador
-        if perfil.rol == 'ADMIN':
-            return redirect('menu_administrador')
-        elif perfil.rol in ['OPER', 'OPERADOR', 'OPERER']:
-            return redirect('menu_operador')
-    except Exception:
-        return redirect('login')
+    return AuthService.redireccionar_por_rol(request.user)
 
 
 # ==========================================
 # 🖥️ SECCIÓN DEL ADMINISTRADOR (MÉDICO)
 # ==========================================
 
-class MenuAdministradorView(LoginRequiredMixin, TemplateView):
+class MenuAdministradorView(LoginRequiredMixin, AdminRequiredMixin, TemplateView):
     template_name = 'gestion/menu_administrador.html'
 
-    def dispatch(self, request, *args, **kwargs):
-        if request.user.perfilusuario.rol != 'ADMIN':
-            return redirect('menu_operador')
-        return super().dispatch(request, *args, **kwargs)
+
 
 # El médico visualiza la sala de espera virtual (Consultas con estado 'P' de Pendiente)
 class ConsultasPendientesListView(LoginRequiredMixin, ListView):
@@ -52,16 +41,10 @@ class ConsultasPendientesListView(LoginRequiredMixin, ListView):
     context_object_name = 'pendientes'
 
     def get_queryset(self):
-        # Filtra las consultas pendientes y las ordena por orden de llegada (antigüedad)
-        return HistoriaClinica.objects.filter(estado='P').order_by('fecha_consulta')
-
-    def dispatch(self, request, *args, **kwargs):
-        if request.user.perfilusuario.rol != 'ADMIN':
-            return redirect('menu_operador')
-        return super().dispatch(request, *args, **kwargs)
+        return HistoriaService.pendientes()
 
     
-class AtenderConsultaView(LoginRequiredMixin, UpdateView):
+class AtenderConsultaView(LoginRequiredMixin, AdminRequiredMixin, UpdateView):
     model = HistoriaClinica
     fields = ['peso', 'temperatura', 'diagnostico', 'tratamiento', 'observaciones']
     template_name = 'gestion/cerrar_consulta.html'
@@ -84,113 +67,93 @@ class AtenderConsultaView(LoginRequiredMixin, UpdateView):
             'placeholder': 'Notas adicionales o recordatorios',
             'rows': 2
         })
-        
         return form
 
     def form_valid(self, form):
-        # 1. Guardamos de forma limpia los datos del formulario clínico
-        consulta = form.save(commit=False)
-        consulta.estado = 'C' # Pasamos el estado de Pendiente ('P') a Completada ('C')
-        consulta.save()
-
-        # 2. 🚀 REDIRECCIÓN CLAVE: Mandamos al médico directo a cargar los productos/honorarios
-        # Usamos 'consulta_id' para que encaje directo con la URL de pre-facturación que armamos
-        return redirect('cargar_conceptos_consulta', consulta_id=consulta.id)
-
-    def dispatch(self, request, *args, **kwargs):
-        # Candado de seguridad: si no es médico (ADMIN), lo saca volando al menú operador
-        if request.user.perfilusuario.rol != 'ADMIN':
-            return redirect('menu_operador')
-        return super().dispatch(request, *args, **kwargs)
+        consulta = HistoriaService.completar_consulta(form)
+        return redirect(
+            "cargar_conceptos_consulta",
+            consulta_id=consulta.id
+        )
     
-# función para cancelar la preconsulta
-class CancelarConsultaView(LoginRequiredMixin, TemplateView):
+    
+# Clase para cancelar la preconsulta
+class CancelarConsultaView(LoginRequiredMixin, AdminRequiredMixin, TemplateView,):
+
     def post(self, request, *args, **kwargs):
-        # Buscamos la consulta por su ID (pk)
-        consulta = get_object_or_404(HistoriaClinica, pk=self.kwargs['pk'])
-        
-        # Doble candado de seguridad por rol
-        if request.user.perfilusuario.rol == 'ADMIN':
-            consulta.estado = 'X' # Marcamos como cancelada
-            consulta.save()
-            
-        return redirect('consultas_pendientes')
+        HistoriaService.cancelar_consulta(
+            self.kwargs["pk"]
+        )
+        return redirect("consultas_pendientes")
 
 
 class HistorialClinicoListView(LoginRequiredMixin, ListView):
     model = HistoriaClinica
-    template_name = 'gestion/historias_clinicas.html'
-    context_object_name = 'consultas'
+    template_name = "gestion/historias_clinicas.html"
+    context_object_name = "consultas"
 
     def get_queryset(self):
-        query = self.request.GET.get('q')
-        if query:
-            # ⚡ BUSCADOR AVANZADO: Busca por nombre de mascota O por apellido del dueño
-            return HistoriaClinica.objects.filter(
-                Q(mascota__nombre__icontains=query) | 
-                Q(mascota__dueño__apellido__icontains=query)
-            ).order_by('-fecha_consulta') # El signo menos (-) hace que muestre primero lo último que pasó
-        
-        # Si no buscó nada, muestra las últimas 10 consultas generales del hospital como historial reciente
-        return HistoriaClinica.objects.all().order_by('-fecha_consulta')[:10]
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['busqueda'] = self.request.GET.get('q', '')
-        return context
+        return HistoriaService.historial(
+            self.request.GET.get("q")
+        )
 
 # SECCION PARA DAR DE ALTA UN NUEVO USUARIO
 # 1. Lista de Operadores (Para ver quiénes están activos y quiénes dados de baja)
-class OperadoresListView(LoginRequiredMixin, ListView):
+class OperadoresListView(LoginRequiredMixin, AdminRequiredMixin, ListView):
     model = PerfilUsuario
     template_name = 'gestion/gestion_operadores.html'
     context_object_name = 'operadores'
 
     def get_queryset(self):
-        # Traemos todos los perfiles cuyo rol sea OPERADOR u OPER
-        return PerfilUsuario.objects.filter(rol__in=['OPER', 'OPERADOR', 'OPERER'])
+        return UsuarioService.obtener_operadores()
 
-    def dispatch(self, request, *args, **kwargs):
-        if request.user.perfilusuario.rol != 'ADMIN':
-            return redirect('menu_operador')
-        return super().dispatch(request, *args, **kwargs)
 
 # 2. Alta de Operador
-class OperadorCreateView(LoginRequiredMixin, CreateView):
+class OperadorCreateView(LoginRequiredMixin, AdminRequiredMixin, CreateView):
     form_class = RegistroOperadorForm
     template_name = 'gestion/alta_operador.html'
     success_url = reverse_lazy('gestion_operadores')
 
     def form_valid(self, form):
-        # Guardamos el usuario base de Django
-        user = form.save(commit=False)
-        user.set_password(form.cleaned_data['password'])
-        user.save()
-        
-        # Le creamos su PerfilUsuario automáticamente con rol OPERADOR
-        PerfilUsuario.objects.create(user=user, rol='OPER')
+        UsuarioService.crear_operador(form)
         return super().form_valid(form)
 
-    def dispatch(self, request, *args, **kwargs):
-        if request.user.perfilusuario.rol != 'ADMIN':
-            return redirect('menu_operador')
-        return super().dispatch(request, *args, **kwargs)
 
 # 3. Baja o Alta Lógica (Desactivar/Activar Cuenta)
-class CambiarEstadoOperadorView(LoginRequiredMixin, TemplateView):
-    def post(self, request, *args, **kwargs):
-        if request.user.perfilusuario.rol == 'ADMIN':
-            # Buscamos al usuario de Django por su ID
-            usuario_operador = get_object_or_404(User, pk=self.kwargs['pk'])
-            # Invertimos su estado de actividad (si estaba activo pasa a inactivo, y viceversa)
-            usuario_operador.is_active = not usuario_operador.is_active
-            usuario_operador.save()
-            
-        return redirect('gestion_operadores')
+class CambiarEstadoOperadorView(LoginRequiredMixin, AdminRequiredMixin, TemplateView,):
 
+    def post(self, request, *args, **kwargs):
+        UsuarioService.cambiar_estado(
+            self.kwargs["pk"]
+        )
+        return redirect("gestion_operadores")
+    
+######## SECCION DE REPORTES ESTADISTICOS #######
+
+class ReportesEstadisticosView(LoginRequiredMixin, AdminRequiredMixin, TemplateView):
+
+    template_name = 'gestion/reportes_estadisticos.html'
+
+    def get_context_data(self, **kwargs):
+
+        context = super().get_context_data(**kwargs)
+
+        context['totales'] = (
+            ReporteService.obtener_totales()
+        )
+
+        context['hoy'] = (
+            ReporteService.obtener_movimiento_hoy()
+        )
+
+        context["especies"] = ReporteService.top_especies(
+            context["totales"]["completadas"]
+        )
+
+        return context
 
 # ==========================================
-#  recep SECCIÓN DEL OPERADOR (RECEPCIÓN)
+#  SECCIÓN DEL OPERADOR (RECEPCIÓN)
 # ==========================================
 
 class MenuOperadorView(LoginRequiredMixin, ListView):
@@ -199,10 +162,9 @@ class MenuOperadorView(LoginRequiredMixin, ListView):
     context_object_name = 'mascotas_encontradas'
 
     def get_queryset(self):
-        query = self.request.GET.get('q')
-        if query:
-            return Mascota.objects.filter(nombre__icontains=query)
-        return Mascota.objects.none()
+        return MascotaService.buscar_mascota(
+            self.request.GET.get("q")
+        )
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -215,6 +177,10 @@ class DuenoCreateView(LoginRequiredMixin, CreateView):
     template_name = 'gestion/formulario_dueño.html'
     success_url = reverse_lazy('menu_operador')
 
+    def form_valid(self, form):
+        MascotaService.crear_dueño(form)
+        return redirect(self.success_url) # type: ignore
+
     def dispatch(self, request, *args, **kwargs):
         if not request.user.is_authenticated:
             return redirect('login')
@@ -224,7 +190,11 @@ class MascotaCreateView(LoginRequiredMixin, CreateView):
     model = Mascota
     form_class = MascotaForm
     template_name = 'gestion/formulario_mascota.html'
-    success_url = reverse_lazy('menu_operador') 
+    success_url = reverse_lazy('menu_operador')
+
+    def form_valid(self, form):
+        MascotaService.crear_mascota(form)
+        return redirect(self.success_url) # type: ignore
 
     def dispatch(self, request, *args, **kwargs):
         if not request.user.is_authenticated:
@@ -246,59 +216,9 @@ class PreConsultaCreateView(LoginRequiredMixin, CreateView):
         return initial
     
     def form_valid(self, form):
-        mascota_id = self.request.GET.get('mascota_id')
-        if mascota_id:
-            # Forzamos la mascota en la instancia del modelo antes de guardar
-            form.instance.mascota_id = mascota_id
-        return super().form_valid(form)
+        MascotaService.crear_preconsulta(
+            form,
+            self.request.GET.get("mascota_id")
+        )
+        return redirect(self.success_url) # type: ignore
     
-
-######## SECCION DE REPORTES ESTADISTICOS #######
-
-class ReportesEstadisticosView(LoginRequiredMixin, TemplateView):
-    template_name = 'gestion/reportes_estadisticos.html'
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        hoy = timezone.now().date()
-
-        # 1. Totales Generales de la historia del consultorio
-        consultas_totales = HistoriaClinica.objects.count()
-        context['totales'] = {
-            'completadas': HistoriaClinica.objects.filter(estado='C').count(),
-            'en_espera': HistoriaClinica.objects.filter(estado='P').count(),
-            'canceladas': HistoriaClinica.objects.filter(estado='X').count(),
-        }
-
-        # 2. Movimiento de HOY (Métricas operativas diarias)
-        consultas_hoy = HistoriaClinica.objects.filter(fecha_consulta__date=hoy)
-        context['hoy'] = {
-            'atendidos': consultas_hoy.filter(estado='C').count(),
-            'espera': consultas_hoy.filter(estado='P').count(),
-        }
-
-        # 3. Distribución por Especie (Top 3)
-        # Esto agrupa por la columna 'especie' de la mascota y cuenta cuántas hay
-        especies_data = HistoriaClinica.objects.filter(estado='C')\
-            .values('mascota__especie')\
-            .annotate(total=Count('id'))\
-            .order_by('-total')[:3]
-        
-        # Procesamos los porcentajes para las barras de CSS
-        total_atendidos = context['totales']['completadas'] or 1 # Evitamos división por cero
-        especies_lista = []
-        for item in especies_data:
-            porcentaje = int((item['total'] / total_atendidos) * 100)
-            especies_lista.append({
-                'nombre': item['mascota__especie'].capitalize(),
-                'cantidad': item['total'],
-                'porcentaje': porcentaje
-            })
-        
-        context['especies'] = especies_lista
-        return context
-
-    def dispatch(self, request, *args, **kwargs):
-        if request.user.perfilusuario.rol != 'ADMIN':
-            return redirect('menu_operador')
-        return super().dispatch(request, *args, **kwargs)

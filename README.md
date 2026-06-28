@@ -8,6 +8,7 @@ El sistema permite gestionar el flujo de atención de pacientes, historias clín
 
 ---
 
+
 # Objetivos
 
 * Gestionar la atención clínica de mascotas.

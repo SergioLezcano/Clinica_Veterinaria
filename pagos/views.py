@@ -90,7 +90,7 @@ class ProcesarPagoView(LoginRequiredMixin, UpdateView):
 
     def form_valid(self, form):
         factura = form.save(commit=False)
-        factura.estado = 'PA' # 🟢 Pasamos el estado a PAGADO
+        factura.estado = 'PA' # Pasamos el estado a PAGADO
         factura.fecha_pago = timezone.now()
         factura.save()
         return super().form_valid(form)
