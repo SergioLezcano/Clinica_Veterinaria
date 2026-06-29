@@ -1,29 +1,34 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Iniciar Sesión - Veterinaria</title>
     <link rel="stylesheet" href="{% static 'gestion/css/estilos.css' %}">
+    <link rel="icon" href="{% static 'gestion/img/favicon.png' %}" type="image/png">
 </head>
+
 <body>
 
     <div class="login-container">
         <div class="login-card">
-            
+
             <div class="login-header">
-                <h2>Veterinaria</h2>
+                <!-- <img src="/static/gestion/img/marca-veterinaria-vethub.svg" width="100%" class="login-header">
+                <hr /> -->
+                <h2>Sistema Integral de Gestión para Clínicas Veterinarias</h2>
                 <p>Iniciá sesión para acceder al sistema</p>
             </div>
 
             <form method="post" class="login-form">
                 {% csrf_token %}
-                
+
                 {% if form.errors %}
-                    <div class="error-message">
-                        Usuario o contraseña incorrectos.
-                    </div>
+                <div class="error-message">
+                    Usuario o contraseña incorrectos.
+                </div>
                 {% endif %}
 
                 <div class="form-group">
@@ -43,4 +48,5 @@
     </div>
 
 </body>
+
 </html>
