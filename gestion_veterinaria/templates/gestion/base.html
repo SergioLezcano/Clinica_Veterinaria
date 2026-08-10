@@ -1,0 +1,44 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>
+        {% block title %}
+        VetHub - Clínica Veterinaria
+        {% endblock %}
+    </title>
+
+    <link rel="stylesheet" href="{% static 'gestion/css/estilos.css' %}">
+    <link rel="icon" href="{% static 'gestion/img/favicon.png' %}" type="image/png">
+
+    {% block extra_css %}
+    {% endblock %}
+</head>
+
+<body>
+
+    {% block body %}
+
+    <div class="panel-container">
+
+        {% block header %}
+        {% endblock %}
+
+        {% block content %}
+        {% endblock %}
+
+    </div>
+
+    {% endblock %}
+
+    {% block extra_js %}
+    {% endblock %}
+
+</body>
+
+</html>

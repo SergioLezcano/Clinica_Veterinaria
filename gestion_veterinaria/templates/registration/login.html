@@ -1,52 +1,68 @@
-{% load static %}
-<!DOCTYPE html>
-<html lang="es">
+{% extends "gestion/base.html" %}
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Iniciar Sesión - Veterinaria</title>
-    <link rel="stylesheet" href="{% static 'gestion/css/estilos.css' %}">
-    <link rel="icon" href="{% static 'gestion/img/favicon.png' %}" type="image/png">
-</head>
+{% block title %}
+Iniciar Sesión - Veterinaria
+{% endblock %}
 
-<body>
 
-    <div class="login-container">
-        <div class="login-card">
+{% block body %}
 
-            <div class="login-header">
-                <!-- <img src="/static/gestion/img/marca-veterinaria-vethub.svg" width="100%" class="login-header">
-                <hr /> -->
-                <h2>Sistema Integral de Gestión para Clínicas Veterinarias</h2>
-                <p>Iniciá sesión para acceder al sistema</p>
-            </div>
+<div class="login-container">
 
-            <form method="post" class="login-form">
-                {% csrf_token %}
+    <div class="login-card">
 
-                {% if form.errors %}
-                <div class="error-message">
-                    Usuario o contraseña incorrectos.
-                </div>
-                {% endif %}
+        <div class="login-header">
 
-                <div class="form-group">
-                    <label for="id_username">Usuario</label>
-                    <input type="text" name="username" id="id_username" autocomplete="off" required autofocus>
-                </div>
+            <h2>
+                Sistema Integral de Gestión para Clínicas Veterinarias
+            </h2>
 
-                <div class="form-group">
-                    <label for="id_password">Contraseña</label>
-                    <input type="password" name="password" id="id_password" required>
-                </div>
-
-                <button type="submit" class="btn-submit">Ingresar</button>
-            </form>
+            <p>
+                Iniciá sesión para acceder al sistema
+            </p>
 
         </div>
+
+        <form method="post" class="login-form">
+
+            {% csrf_token %}
+
+            {% if form.errors %}
+
+            <div class="error-message">
+                Usuario o contraseña incorrectos.
+            </div>
+
+            {% endif %}
+
+            <div class="form-group">
+
+                <label for="id_username">
+                    Usuario
+                </label>
+
+                <input type="text" name="username" id="id_username" autocomplete="off" required autofocus>
+
+            </div>
+
+            <div class="form-group">
+
+                <label for="id_password">
+                    Contraseña
+                </label>
+
+                <input type="password" name="password" id="id_password" required>
+
+            </div>
+
+            <button type="submit" class="btn-submit">
+                Ingresar
+            </button>
+
+        </form>
+
     </div>
 
-</body>
+</div>
 
-</html>
+{% endblock %}
