@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bienvenido a Clínica Veterinaria</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8fafc;
+            color: #334155;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: #ffffff;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+        .header {
+            background: linear-gradient(135deg, #0284c7, #0ea5e9);
+            color: #ffffff;
+            padding: 30px 20px;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+            letter-spacing: 0.5px;
+        }
+        .header p {
+            margin: 8px 0 0;
+            opacity: 0.95;
+            font-size: 15px;
+        }
+        .content {
+            padding: 30px 25px;
+        }
+        .saludo {
+            font-size: 16px;
+            line-height: 1.6;
+            margin-bottom: 20px;
+            color: #1e293b;
+        }
+        .card-info {
+            background-color: #f1f5f9;
+            border-left: 5px solid #0ea5e9;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 25px;
+        }
+        .card-info h2 {
+            margin: 0 0 15px;
+            font-size: 17px;
+            color: #0f172a;
+        }
+        .item-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-size: 15px;
+        }
+        .item-label {
+            color: #64748b;
+            font-weight: 500;
+        }
+        .item-value {
+            color: #0f172a;
+            font-weight: 600;
+        }
+        .btn-wrapper {
+            text-align: center;
+            margin: 30px 0;
+        }
+        .btn-action {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: #ffffff !important;
+            text-decoration: none;
+            padding: 14px 28px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 16px;
+            display: inline-block;
+            box-shadow: 0 4px 10px rgba(16, 185, 129, 0.3);
+            letter-spacing: 0.3px;
+        }
+        .alert-box {
+            background-color: #eff6ff;
+            border: 1px solid #bfdbfe;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 25px;
+            font-size: 13px;
+            color: #1e40af;
+            line-height: 1.5;
+        }
+        .link-fallback {
+            word-break: break-all;
+            color: #0284c7;
+            font-size: 13px;
+        }
+        .footer {
+            background-color: #f8fafc;
+            border-top: 1px solid #e2e8f0;
+            padding: 20px;
+            text-align: center;
+            font-size: 13px;
+            color: #94a3b8;
+            line-height: 1.5;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🐾 Clínica Veterinaria</h1>
+            <p>Alta de Nuevo Personal de Recepción</p>
+        </div>
+        <div class="content">
+            <p class="saludo">
+                Hola <strong>{{ usuario.first_name|default:usuario.username }}</strong>,<br>
+                ¡Te damos la bienvenida al equipo! El administrador ha creado tu cuenta de usuario como <strong>Personal de Recepción / Operador</strong> en nuestro sistema de gestión.
+            </p>
+
+            <div class="card-info">
+                <h2>👤 Datos de tu Cuenta</h2>
+                <div class="item-row">
+                    <span class="item-label">Nombre de Usuario:</span>
+                    <span class="item-value">{{ usuario.username }}</span>
+                </div>
+                <div class="item-row">
+                    <span class="item-label">Correo Registrado:</span>
+                    <span class="item-value">{{ usuario.email }}</span>
+                </div>
+                <div class="item-row">
+                    <span class="item-label">Rol Asignado:</span>
+                    <span class="item-value">Operador de Recepción</span>
+                </div>
+            </div>
+
+            <p style="font-size: 15px; line-height: 1.6; margin-bottom: 10px;">
+                Para completar tu registro y poder acceder al sistema, por favor hacé clic en el siguiente botón para establecer tu contraseña de acceso:
+            </p>
+
+            <div class="btn-wrapper">
+                <a href="{{ link_activacion }}" class="btn-action">
+                    🔐 Crear / Cambiar mi Contraseña
+                </a>
+            </div>
+
+            <div class="alert-box">
+                🛡️ <strong>Seguridad de la Cuenta:</strong>
+                <ul style="margin: 6px 0 0; padding-left: 18px;">
+                    <li>Este enlace es de uso único y privado.</li>
+                    <li>Una vez establecida tu contraseña, quedará registrada de forma segura en la base de datos y podrás iniciar sesión directamente.</li>
+                    <li>Si no fuiste vos quien solicitó esta cuenta o desconocés el origen de este correo, podés desestimarlo.</li>
+                </ul>
+            </div>
+
+            <p style="font-size: 13px; color: #64748b; margin-top: 20px;">
+                Si el botón no funciona, podés copiar y pegar el siguiente enlace directamente en tu navegador web:<br>
+                <a href="{{ link_activacion }}" class="link-fallback">{{ link_activacion }}</a>
+            </p>
+        </div>
+        <div class="footer">
+            Este es un correo automático enviado por el Sistema de Gestión de Clínica Veterinaria.<br>
+            Por favor no respondas a este mensaje.
+        </div>
+    </div>
+</body>
+</html>

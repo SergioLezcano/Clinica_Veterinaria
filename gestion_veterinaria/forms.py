@@ -55,11 +55,28 @@ class CierreConsultaForm(forms.ModelForm):
         }
 
 
+from django.contrib.auth.forms import SetPasswordForm
+
 # FORMULARIO DE ALTA NUEVO USUARIO OPERADOR
 
 class RegistroOperadorForm(forms.ModelForm):
-    password = forms.CharField(widget=forms.PasswordInput(attrs={'placeholder': 'Contraseña segura'}), label="Contraseña")
-    confirmar_password = forms.CharField(widget=forms.PasswordInput(attrs={'placeholder': 'Repetir contraseña'}), label="Confirmar Contraseña")
+    email = forms.EmailField(
+        required=True,
+        label="Correo Electrónico",
+        widget=forms.EmailInput(attrs={'placeholder': 'operador@ejemplo.com'}),
+        help_text="Se enviará a este correo la confirmación de alta con el enlace para configurar la contraseña."
+    )
+    password = forms.CharField(
+        required=False,
+        widget=forms.PasswordInput(attrs={'placeholder': 'Opcional (se creará desde el email)'}),
+        label="Contraseña Inicial (Opcional)",
+        help_text="Opcional. Si se deja en blanco, el operador creará su contraseña mediante el enlace enviado a su correo."
+    )
+    confirmar_password = forms.CharField(
+        required=False,
+        widget=forms.PasswordInput(attrs={'placeholder': 'Repetir contraseña si ingresó una'}),
+        label="Confirmar Contraseña"
+    )
     
     class Meta:
         model = User
@@ -71,11 +88,33 @@ class RegistroOperadorForm(forms.ModelForm):
             'email': 'Correo Electrónico'
         }
 
+    def clean_email(self):
+        email = self.cleaned_data.get('email')
+        if email and User.objects.filter(email__iexact=email).exists():
+            raise forms.ValidationError("Ya existe un usuario registrado con este correo electrónico.")
+        return email
+
     def clean(self):
         cleaned_data = super().clean()
         password = cleaned_data.get("password")
         confirmar_password = cleaned_data.get("confirmar_password")
 
-        if password != confirmar_password:
-            raise forms.ValidationError("Las contraseñas no coinciden.")
+        if password or confirmar_password:
+            if password != confirmar_password:
+                raise forms.ValidationError("Las contraseñas no coinciden.")
         return cleaned_data
+
+
+class EstablecerPasswordCustomForm(SetPasswordForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['new_password1'].widget.attrs.update({
+            'placeholder': 'Ingresá tu nueva contraseña',
+            'autocomplete': 'new-password'
+        })
+        self.fields['new_password1'].label = "Nueva Contraseña"
+        self.fields['new_password2'].widget.attrs.update({
+            'placeholder': 'Repetí tu nueva contraseña',
+            'autocomplete': 'new-password'
+        })
+        self.fields['new_password2'].label = "Confirmar Nueva Contraseña"

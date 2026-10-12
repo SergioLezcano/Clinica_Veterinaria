@@ -38,6 +38,8 @@ urlpatterns = [
     path('operadores/', views.OperadoresListView.as_view(), name='gestion_operadores'),
     path('operadores/nuevo/', views.OperadorCreateView.as_view(), name='alta_operador'),
     path('operadores/cambiar-estado/<int:pk>/', views.CambiarEstadoOperadorView.as_view(), name='cambiar_estado_operador'),
+    path('operadores/reenviar-confirmacion/<int:pk>/', views.ReenviarConfirmacionOperadorView.as_view(), name='reenviar_confirmacion_operador'),
+    path('operadores/establecer-password/<str:uidb64>/<str:token>/', views.EstablecerPasswordOperadorView.as_view(), name='establecer_password_operador'),
 
     path('reportes/', views.ReportesEstadisticosView.as_view(), name='reportes_estadisticos'),
 ]

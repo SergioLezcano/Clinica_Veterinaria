@@ -1,27 +1,45 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <title>Alta de Operador - Administrador</title>
     <link rel="stylesheet" href="{% static 'gestion/css/estilos.css' %}">
 </head>
+
 <body>
     <div class="panel-container">
         <main class="form-wrapper">
-            <div class="form-card" style="max-width: 550px;">
+            <div class="form-card" style="max-width: 580px;">
                 <div class="card-header">
                     <h2>Nuevo Personal de Recepción</h2>
-                    <p class="subtitle">Asigná las credenciales para el nuevo operador</p>
+                    <p class="subtitle">Registrá los datos del nuevo operador para enviarle su acceso</p>
                 </div>
-                
+
+                <div
+                    style="background-color: #eff6ff; border: 1px solid #bfdbfe; color: #1e40af; padding: 14px 18px; border-radius: 8px; margin-bottom: 25px; font-size: 14px; line-height: 1.5; display: flex; align-items: flex-start; gap: 12px;">
+                    <span style="font-size: 22px; line-height: 1;">✉️</span>
+                    <div>
+                        <strong>Confirmación Automática por Correo:</strong><br>
+                        Al registrar el operador, el sistema enviará un correo a su dirección de email con un enlace
+                        seguro para que el usuario pueda establecer o cambiar su contraseña de acceso y activarse en la
+                        base de datos.
+                    </div>
+                </div>
+
                 <form method="post" class="custom-form">
                     {% csrf_token %}
+
                     <div class="django-form-fields">
                         {{ form.as_p }}
                     </div>
+
                     <div class="form-actions" style="margin-top: 30px;">
-                        <button type="submit" class="btn-primary" style="background-color: #10b981;">Guardar y Crear Usuario</button>
+                        <button type="submit" class="btn-primary"
+                            style="background-color: #10b981; padding: 12px 20px;">
+                            ✉️ Guardar y Enviar
+                        </button>
                         <a href="{% url 'gestion_operadores' %}" class="btn-secondary">Cancelar</a>
                     </div>
                 </form>
@@ -29,4 +47,5 @@
         </main>
     </div>
 </body>
+
 </html>

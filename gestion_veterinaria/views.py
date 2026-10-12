@@ -7,10 +7,15 @@ from gestion_veterinaria.mixins.admin_required import AdminRequiredMixin
 
 from .models import Mascota, Dueño, HistoriaClinica
 from .forms import MascotaForm, PreConsultaForm, CierreConsultaForm
-from django.shortcuts import redirect
+from django.contrib import messages
+from django.contrib.auth.models import User
+from django.contrib.auth.tokens import default_token_generator
+from django.utils.http import urlsafe_base64_decode
+from django.utils.encoding import force_str
+from django.shortcuts import render, redirect
 
 from .models import PerfilUsuario
-from .forms import RegistroOperadorForm
+from .forms import RegistroOperadorForm, EstablecerPasswordCustomForm
 
 from .services.reporte_service import ReporteService
 from .services.historia_service import HistoriaService
@@ -123,7 +128,17 @@ class OperadorCreateView(LoginRequiredMixin, AdminRequiredMixin, CreateView):
     success_url = reverse_lazy('gestion_operadores')
 
     def form_valid(self, form):
-        UsuarioService.crear_operador(form)
+        usuario, enviado = UsuarioService.crear_operador(form, request=self.request)
+        if enviado:
+            messages.success(
+                self.request,
+                f"Operador '{usuario.username}' registrado exitosamente. Se envió el correo de confirmación a {usuario.email} para que configure su contraseña."
+            )
+        else:
+            messages.warning(
+                self.request,
+                f"Operador '{usuario.username}' registrado exitosamente, pero no se pudo enviar el correo de confirmación a {usuario.email}."
+            )
         return redirect(self.success_url)
 
 
@@ -138,6 +153,82 @@ class CambiarEstadoOperadorView(LoginRequiredMixin, AdminRequiredMixin, View):
 
     def get(self, request, *args, **kwargs):
         return redirect("gestion_operadores")
+
+
+# 4. Reenviar Confirmación de Alta por Correo Electrónico
+class ReenviarConfirmacionOperadorView(LoginRequiredMixin, AdminRequiredMixin, View):
+
+    def post(self, request, *args, **kwargs):
+        usuario = UsuarioService.obtener_usuario(self.kwargs["pk"])
+        if not usuario.email:
+            messages.error(request, f"El usuario {usuario.username} no tiene un correo electrónico registrado.")
+            return redirect("gestion_operadores")
+
+        enviado = UsuarioService.enviar_email_confirmacion_alta(usuario, request=request)
+        if enviado:
+            messages.success(
+                request,
+                f"Correo de confirmación y cambio de clave reenviado con éxito a {usuario.email}."
+            )
+        else:
+            messages.error(
+                request,
+                f"No se pudo enviar el correo de confirmación a {usuario.email}."
+            )
+        return redirect("gestion_operadores")
+
+    def get(self, request, *args, **kwargs):
+        return redirect("gestion_operadores")
+
+
+# 5. Vista pública: Establecer o Cambiar Contraseña del Operador mediante Token de Correo
+class EstablecerPasswordOperadorView(View):
+    template_name = 'gestion/establecer_password.html'
+    template_error = 'gestion/password_token_invalido.html'
+
+    def get_user(self, uidb64):
+        try:
+            uid = force_str(urlsafe_base64_decode(uidb64))
+            return User.objects.get(pk=uid)
+        except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+            return None
+
+    def get(self, request, uidb64, token):
+        user = self.get_user(uidb64)
+        if user is None or not default_token_generator.check_token(user, token):
+            return render(request, self.template_error, {
+                'error': 'El enlace de confirmación es inválido o ya fue utilizado.'
+            })
+
+        form = EstablecerPasswordCustomForm(user)
+        return render(request, self.template_name, {
+            'form': form,
+            'usuario': user,
+        })
+
+    def post(self, request, uidb64, token):
+        user = self.get_user(uidb64)
+        if user is None or not default_token_generator.check_token(user, token):
+            return render(request, self.template_error, {
+                'error': 'El enlace de confirmación es inválido o ya fue utilizado.'
+            })
+
+        form = EstablecerPasswordCustomForm(user, request.POST)
+        if form.is_valid():
+            form.save()
+            user.is_active = True
+            user.save(update_fields=['is_active'])
+
+            messages.success(
+                request,
+                f"¡Contraseña establecida con éxito para {user.username}! Ya podés ingresar al sistema."
+            )
+            return redirect('login')
+
+        return render(request, self.template_name, {
+            'form': form,
+            'usuario': user,
+        })
     
 ######## SECCION DE REPORTES ESTADISTICOS #######
 
