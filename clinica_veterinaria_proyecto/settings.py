@@ -60,7 +60,12 @@ ROOT_URLCONF = 'clinica_veterinaria_proyecto.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'gestion_veterinaria' / 'templates'], #Carpeta global de templates
+        'DIRS': [
+            BASE_DIR / 'gestion_veterinaria' / 'templates',
+            BASE_DIR / 'productos' / 'templates',
+            BASE_DIR / 'pagos' / 'templates',
+            BASE_DIR / 'turnos' / 'templates',
+        ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [

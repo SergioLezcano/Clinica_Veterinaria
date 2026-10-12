@@ -30,4 +30,5 @@ urlpatterns = [
 
     path('pagos/', include('pagos.urls')),
     path('turnos/', include('turnos.urls')),
+    path('productos/', include('productos.urls')),
 ]

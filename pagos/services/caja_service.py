@@ -40,4 +40,11 @@ class CajaService:
             ]
         )
 
+        # Descontar stock de productos físicos vendidos/aplicados
+        for detalle in factura.detalles.select_related("producto").all():
+            producto = detalle.producto
+            if producto.categoria != "HON":
+                producto.cantidad = max(0, producto.cantidad - detalle.cantidad)
+                producto.save(update_fields=["cantidad"])
+
         return factura
