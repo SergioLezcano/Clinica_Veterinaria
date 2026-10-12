@@ -29,7 +29,7 @@
                     <input type="text" name="q" placeholder="Buscar por nombre de mascota o apellido del dueño..." value="{{ busqueda }}" autocomplete="off">
                     <button type="submit" class="btn-search" style="background-color: #0ea5e9;">Buscar Historial</button>
                     {% if busqueda %}
-                        <a href="?_clean=1" class="btn-clear" style="text-decoration: none; line-height: 2.3;">Limpiar Filtros</a>
+                        <a href="{% url 'historial_clinico' %}" class="btn-clear" style="text-decoration: none; line-height: 2.3;">Limpiar Filtros</a>
                     {% endif %}
                 </form>
             </div>
@@ -48,6 +48,7 @@
                                 {% elif consulta.estado == 'P' %}ficha-pendiente
                                 {% else %}ficha-cancelada{% endif %}">
 
+                            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e2e8f0; padding-bottom: 12px; margin-bottom: 15px;">
                                 <div>
                                     <h4 style="margin: 0; font-size: 18px; color: #1e293b;">
                                         🐾 {{ consulta.mascota.nombre }} 

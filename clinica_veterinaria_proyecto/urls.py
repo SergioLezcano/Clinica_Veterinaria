@@ -28,5 +28,5 @@ urlpatterns = [
     # La app principal (vincula las urls de gestion_veterinaria)
     path('', include('gestion_veterinaria.urls')),
 
-    path('pagos', include('pagos.urls'))
+    path('pagos/', include('pagos.urls')),
 ]

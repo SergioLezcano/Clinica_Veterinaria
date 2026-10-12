@@ -1,4 +1,5 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.views import View
 from django.views.generic import TemplateView, ListView, CreateView, UpdateView
 from django.urls import reverse_lazy
 
@@ -16,6 +17,7 @@ from .services.historia_service import HistoriaService
 from .services.usuario_service import UsuarioService
 from .services.mascota_service import MascotaService
 from .services.auth_service import AuthService
+from pagos.services.factura_service import FacturaService
 
 # ==========================================
 # 🔄 REDIRECCIÓN E INICIO (POST-LOGIN)
@@ -35,7 +37,7 @@ class MenuAdministradorView(LoginRequiredMixin, AdminRequiredMixin, TemplateView
 
 
 # El médico visualiza la sala de espera virtual (Consultas con estado 'P' de Pendiente)
-class ConsultasPendientesListView(LoginRequiredMixin, ListView):
+class ConsultasPendientesListView(LoginRequiredMixin, AdminRequiredMixin, ListView):
     model = HistoriaClinica
     template_name = 'gestion/consultas_pendientes.html'
     context_object_name = 'pendientes'
@@ -53,8 +55,8 @@ class AtenderConsultaView(LoginRequiredMixin, AdminRequiredMixin, UpdateView):
         form = super().get_form(form_class)
         
         # AGREGAMOS LOS PLACEHOLDERS E INYECTAMOS ATRIBUTOS HTML
-        form.fields['peso'].widget.attrs.update({'placeholder': '(en kg)'})
-        form.fields['temperatura'].widget.attrs.update({'placeholder': '(en °C)'})
+        form.fields['peso'].widget.attrs.update({'placeholder': '(en kg)', 'step': '0.1'})
+        form.fields['temperatura'].widget.attrs.update({'placeholder': '(en °C)', 'step': '0.1'})
         form.fields['diagnostico'].widget.attrs.update({
             'placeholder': 'Describa el diagnóstico clínico del paciente...',
             'rows': 3
@@ -71,6 +73,9 @@ class AtenderConsultaView(LoginRequiredMixin, AdminRequiredMixin, UpdateView):
 
     def form_valid(self, form):
         consulta = HistoriaService.completar_consulta(form)
+
+        FacturaService.obtener_o_crear_borrador(consulta)
+
         return redirect(
             "cargar_conceptos_consulta",
             consulta_id=consulta.id
@@ -78,7 +83,7 @@ class AtenderConsultaView(LoginRequiredMixin, AdminRequiredMixin, UpdateView):
     
     
 # Clase para cancelar la preconsulta
-class CancelarConsultaView(LoginRequiredMixin, AdminRequiredMixin, TemplateView,):
+class CancelarConsultaView(LoginRequiredMixin, AdminRequiredMixin, View):
 
     def post(self, request, *args, **kwargs):
         HistoriaService.cancelar_consulta(
@@ -86,8 +91,11 @@ class CancelarConsultaView(LoginRequiredMixin, AdminRequiredMixin, TemplateView,
         )
         return redirect("consultas_pendientes")
 
+    def get(self, request, *args, **kwargs):
+        return redirect("consultas_pendientes")
 
-class HistorialClinicoListView(LoginRequiredMixin, ListView):
+
+class HistorialClinicoListView(LoginRequiredMixin, AdminRequiredMixin, ListView):
     model = HistoriaClinica
     template_name = "gestion/historias_clinicas.html"
     context_object_name = "consultas"
@@ -96,6 +104,11 @@ class HistorialClinicoListView(LoginRequiredMixin, ListView):
         return HistoriaService.historial(
             self.request.GET.get("q")
         )
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['busqueda'] = self.request.GET.get('q', '')
+        return context
 
 # SECCION PARA DAR DE ALTA UN NUEVO USUARIO
 # 1. Lista de Operadores (Para ver quiénes están activos y quiénes dados de baja)
@@ -116,16 +129,19 @@ class OperadorCreateView(LoginRequiredMixin, AdminRequiredMixin, CreateView):
 
     def form_valid(self, form):
         UsuarioService.crear_operador(form)
-        return super().form_valid(form)
+        return redirect(self.success_url)
 
 
 # 3. Baja o Alta Lógica (Desactivar/Activar Cuenta)
-class CambiarEstadoOperadorView(LoginRequiredMixin, AdminRequiredMixin, TemplateView,):
+class CambiarEstadoOperadorView(LoginRequiredMixin, AdminRequiredMixin, View):
 
     def post(self, request, *args, **kwargs):
         UsuarioService.cambiar_estado(
             self.kwargs["pk"]
         )
+        return redirect("gestion_operadores")
+
+    def get(self, request, *args, **kwargs):
         return redirect("gestion_operadores")
     
 ######## SECCION DE REPORTES ESTADISTICOS #######
@@ -179,12 +195,7 @@ class DuenoCreateView(LoginRequiredMixin, CreateView):
 
     def form_valid(self, form):
         MascotaService.crear_dueño(form)
-        return redirect(self.success_url) # type: ignore
-
-    def dispatch(self, request, *args, **kwargs):
-        if not request.user.is_authenticated:
-            return redirect('login')
-        return super().dispatch(request, *args, **kwargs)
+        return redirect(self.success_url)
 
 class MascotaCreateView(LoginRequiredMixin, CreateView):
     model = Mascota
@@ -194,12 +205,7 @@ class MascotaCreateView(LoginRequiredMixin, CreateView):
 
     def form_valid(self, form):
         MascotaService.crear_mascota(form)
-        return redirect(self.success_url) # type: ignore
-
-    def dispatch(self, request, *args, **kwargs):
-        if not request.user.is_authenticated:
-            return redirect('login')
-        return super().dispatch(request, *args, **kwargs)
+        return redirect(self.success_url)
 
 # El operador inicia la orden corta de consultorio (Solo Mascota y Motivo)
 class PreConsultaCreateView(LoginRequiredMixin, CreateView):

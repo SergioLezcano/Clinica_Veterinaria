@@ -1,6 +1,5 @@
 from django.db.models import Count, Q
 from django.utils import timezone
-from datetime import datetime, time
 
 from ..models import HistoriaClinica
 
@@ -28,25 +27,12 @@ class ReporteService:
     @staticmethod
     def obtener_movimiento_hoy():
 
-        hoy = timezone.now().date()
-
-        inicio_dia = datetime.combine(
-            hoy,
-            time.min
-        )
-
-        fin_dia = datetime.combine(
-            hoy,
-            time.max
-        )
+        hoy = timezone.localdate()
 
         return (
             HistoriaClinica.objects
             .filter(
-                fecha_consulta__range=(
-                    inicio_dia,
-                    fin_dia
-                )
+                fecha_consulta__date=hoy
             )
             .aggregate(
                 atendidos=Count(
@@ -61,14 +47,14 @@ class ReporteService:
         )
     
     @staticmethod
-    def top_especies(total_completadas, limite=3):
+    def top_especies(total_completadas=None, limite=3):
 
-        total_completadas = HistoriaClinica.objects.filter(
-            estado="C"
-        ).count()
+        if total_completadas is None:
+            total_completadas = HistoriaClinica.objects.filter(
+                estado="C"
+            ).count()
 
-        if total_completadas == 0:
-            total_completadas = 1
+        divisor = total_completadas if total_completadas > 0 else 1
 
         especies_data = (
             HistoriaClinica.objects
@@ -83,10 +69,10 @@ class ReporteService:
         for item in especies_data:
 
             especies.append({
-                "nombre": item["mascota__especie"].capitalize(),
+                "nombre": (item["mascota__especie"] or "Sin especie").capitalize(),
                 "cantidad": item["total"],
                 "porcentaje": int(
-                    (item["total"] / total_completadas) * 100
+                    (item["total"] / divisor) * 100
                 )
             })
 

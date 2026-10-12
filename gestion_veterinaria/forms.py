@@ -9,7 +9,7 @@ from .models import PerfilUsuario
 class MascotaForm(forms.ModelForm):
     class Meta:
         model = Mascota
-        fields = ['nombre', 'especie', 'raza', 'fecha_nacimiento', 'dueño']
+        fields = ['nombre', 'especie', 'raza', 'sexo', 'fecha_nacimiento', 'dueño']
         
         widgets = {
             'fecha_nacimiento': forms.DateInput(

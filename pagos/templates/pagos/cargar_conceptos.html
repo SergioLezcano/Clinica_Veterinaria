@@ -39,11 +39,11 @@
                         <div id="lista-productos" class="checkbox-group" style="max-height: 250px; overflow-y: auto; margin-bottom: 20px; border: 1px solid #e2e8f0; padding: 10px; border-radius: 6px;">
                             {% for producto in medicamentos_disponibles %}
                                 <div class="checkbox-item producto-item" style="margin-bottom: 10px; display: flex; align-items: center;">
-                                    <input type="checkbox" 
-                                        name="medicamentos_seleccionados" 
-                                        value="{{ producto.id }}" 
-                                        id="prod_{{ producto.id }}"
-                                        style="margin-right: 10px; transform: scale(1.2); cursor: pointer;">
+                                    <input type="checkbox" name="medicamentos_seleccionados" value="{{ producto.id }}" id="prod_{{ producto.id }}" style="margin-right: 10px; transform: scale(1.2); cursor: pointer;"
+                                        {% if producto.id in productos_seleccionados %}
+                                            checked
+                                        {% endif %}
+                                    >
                                     
                                     <label for="prod_{{ producto.id }}" class="producto-nombre" style="cursor: pointer; font-size: 15px;">
                                         <strong>{{ producto.nombre }}</strong> — ${{ producto.precio_unitario }} 
@@ -88,7 +88,11 @@
                     </script>
 
                     <div class="form-actions">
-                        <button type="submit" class="btn-primary" style="background-color: #0ea5e9;">Enviar Orden a Caja</button>
+                        
+                        <button type="submit" name="accion" value="guardar" class="btn-secondary">Guardar</button>
+
+                        <button type="submit" name="accion" value="enviar" class="btn-primary">Enviar a Caja</button>
+                        
                         <a href="{% url 'consultas_pendientes' %}" class="btn-secondary">Volver</a>
                     </div>
                 </form>

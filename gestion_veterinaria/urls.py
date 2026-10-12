@@ -3,8 +3,11 @@ from . import views
 from pagos.views import CargarConceptosConsultaView
 
 urlpatterns = [
+    # 🏠 Ruta raíz del sistema (Redirige según autenticación y rol)
+    path('', views.redireccionar_segun_rol, name='inicio'),
+
     # 🔄 Redirección intermedia post-login
-    path('redireccion/', views.redireccionar_segun_rol, name='redireccion_rol'), # type: ignore
+    path('redireccion/', views.redireccionar_segun_rol, name='redireccion_rol'),
     
     # 🖥️ Menús principales de inicio (Dashboards)
     path('menu-operador/', views.MenuOperadorView.as_view(), name='menu_operador'),

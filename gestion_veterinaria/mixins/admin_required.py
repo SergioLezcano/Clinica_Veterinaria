@@ -14,10 +14,13 @@ class AdminRequiredMixin(AccessMixin):
         **kwargs
     ) -> HttpResponse:
 
+        if not request.user.is_authenticated:
+            return redirect("login")
+
         if not AuthService.es_admin(request.user):
             return redirect("menu_operador")
 
-        return super(AdminRequiredMixin, self).dispatch( # type: ignore
+        return super().dispatch(
             request,
             *args,
             **kwargs

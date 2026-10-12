@@ -1,4 +1,5 @@
 from django.shortcuts import redirect
+from ..models import PerfilUsuario
 
 
 class AuthService:
@@ -15,8 +16,14 @@ class AuthService:
         if not usuario.is_authenticated:
             return redirect("login")
 
-        try:
+        if usuario.is_superuser or usuario.is_staff:
+            PerfilUsuario.objects.get_or_create(
+                user=usuario,
+                defaults={"rol": "ADMIN"}
+            )
+            return redirect("menu_administrador")
 
+        try:
             perfil = usuario.perfilusuario
 
             if perfil.rol == "ADMIN":
@@ -33,6 +40,12 @@ class AuthService:
     @staticmethod
     def es_admin(usuario):
 
+        if not usuario or not usuario.is_authenticated:
+            return False
+
+        if usuario.is_superuser or usuario.is_staff:
+            return True
+
         try:
             return usuario.perfilusuario.rol == "ADMIN"
         except Exception:
@@ -40,6 +53,9 @@ class AuthService:
         
     @staticmethod
     def es_operador(usuario):
+
+        if not usuario or not usuario.is_authenticated:
+            return False
 
         try:
             return (

@@ -14,7 +14,7 @@ class Dueño(models.Model):
 class Mascota(models.Model):
     class Sexo(models.TextChoices):
         MACHO = 'M', 'Macho'
-        HEMBBRA = 'H', 'Hembra'
+        HEMBRA = 'H', 'Hembra'
 
     dueño = models.ForeignKey(Dueño, on_delete=models.CASCADE)
     nombre = models.CharField(max_length=50)
@@ -30,13 +30,18 @@ class Mascota(models.Model):
             return "No especificada"
         
         hoy = date.today()
+        if self.fecha_nacimiento > hoy:
+            return "Fecha inválida"
+
         # Calculamos la diferencia en años
         anios = hoy.year - self.fecha_nacimiento.year - ((hoy.month, hoy.day) < (self.fecha_nacimiento.month, self.fecha_nacimiento.day))
         
         if anios < 1:
             # Si tiene menos de un año, calculamos los meses aproximados
             meses = (hoy.year - self.fecha_nacimiento.year) * 12 + hoy.month - self.fecha_nacimiento.month
-            if meses == 0:
+            if hoy.day < self.fecha_nacimiento.day:
+                meses -= 1
+            if meses <= 0:
                 return "Menos de un mes"
             return f"{meses} {'mes' if meses == 1 else 'meses'}"
         
