@@ -73,9 +73,10 @@ class FacturaService:
     @transaction.atomic
     def generar_desde_consulta(
         consulta_id,
-        productos_ids
+        productos_ids,
+        cantidades=None
     ):
-
+        cantidades = cantidades or {}
         consulta = FacturaService.obtener_consulta(
             consulta_id
         )
@@ -100,9 +101,11 @@ class FacturaService:
         )
 
         for producto in productos:
+            cant = cantidades.get(producto.id, cantidades.get(str(producto.id), 1))
             FacturaService.agregar_producto(
                 factura,
-                producto
+                producto,
+                cantidad=cant
             )
         # Se recalcula una única vez
         factura.actualizar_total()
@@ -144,8 +147,9 @@ class FacturaService:
     def actualizar_borrador(
         consulta_id,
         productos_ids,
+        cantidades=None
     ):
-
+        cantidades = cantidades or {}
         consulta = FacturaService.obtener_consulta(
             consulta_id
         )
@@ -159,17 +163,18 @@ class FacturaService:
             producto__categoria="HON"
         ).delete()
 
-        # Agregamos nuevamente los seleccionados
+        # Agregamos nuevamente los seleccionados con sus cantidades
         productos = Producto.objects.filter(
-            pk__in=productos_ids,
+            pk__in=[pid for pid in productos_ids if pid],
             activo=True
         )
 
         for producto in productos:
-
+            cant = cantidades.get(producto.id, cantidades.get(str(producto.id), 1))
             FacturaService.agregar_producto(
                 factura,
-                producto
+                producto,
+                cantidad=cant
             )
 
         factura.actualizar_total()

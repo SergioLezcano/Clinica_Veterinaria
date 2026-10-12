@@ -18,6 +18,7 @@ from .services.usuario_service import UsuarioService
 from .services.mascota_service import MascotaService
 from .services.auth_service import AuthService
 from pagos.services.factura_service import FacturaService
+from pagos.models import Factura
 
 # ==========================================
 # 🔄 REDIRECCIÓN E INICIO (POST-LOGIN)
@@ -45,11 +46,25 @@ class ConsultasPendientesListView(LoginRequiredMixin, AdminRequiredMixin, ListVi
     def get_queryset(self):
         return HistoriaService.pendientes()
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['borradores'] = HistoriaService.con_prefactura_pendiente()
+        return context
+
     
 class AtenderConsultaView(LoginRequiredMixin, AdminRequiredMixin, UpdateView):
     model = HistoriaClinica
     form_class = CierreConsultaForm
     template_name = 'gestion/cerrar_consulta.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        try:
+            factura = getattr(self.object, 'factura', None)
+            context['tiene_borrador'] = bool(factura and factura.estado == Factura.Estado.BORRADOR)
+        except Exception:
+            context['tiene_borrador'] = False
+        return context
 
     def form_valid(self, form):
         consulta = HistoriaService.completar_consulta(form)

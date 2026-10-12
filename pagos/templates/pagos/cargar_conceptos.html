@@ -3,102 +3,300 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pre-facturación - Consulta #{{ consulta.id }}</title>
     <link rel="stylesheet" href="{% static 'gestion/css/estilos.css' %}">
+    <style>
+        .table-conceptos-wrapper {
+            max-height: 320px;
+            overflow-y: auto;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            background: #ffffff;
+        }
+        .tabla-conceptos {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+        .tabla-conceptos th {
+            position: sticky;
+            top: 0;
+            background: #f8fafc;
+            border-bottom: 2px solid #e2e8f0;
+            padding: 10px 12px;
+            color: #475569;
+            font-weight: 600;
+            z-index: 2;
+        }
+        .tabla-conceptos td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #f1f5f9;
+            vertical-align: middle;
+        }
+        .fila-seleccionada {
+            background-color: #f0fdf4 !important;
+        }
+        .input-cantidad {
+            width: 70px;
+            padding: 6px 8px;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            text-align: center;
+            font-weight: 700;
+            font-size: 14px;
+            color: #1e293b;
+            box-sizing: border-box;
+            transition: all 0.2s ease;
+        }
+        .input-cantidad:focus {
+            outline: none;
+            border-color: #0ea5e9;
+            box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.15);
+        }
+        .input-cantidad:disabled {
+            background-color: #f1f5f9;
+            color: #94a3b8;
+            cursor: not-allowed;
+            border-color: #e2e8f0;
+        }
+        .resumen-totales-card {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 16px 20px;
+            margin: 18px 0;
+        }
+    </style>
 </head>
 <body>
     <div class="panel-container">
         <main class="form-wrapper">
-            <div class="form-card" style="max-width: 600px; border-top: 4px solid #0ea5e9;">
+            <div class="form-card" style="max-width: 760px; border-top: 4px solid #0ea5e9;">
                 
-                <div class="card-header" style="text-align: center; margin-bottom: 20px;">
-                    <h2>Pre-facturación de Atención</h2>
-                    <p>Paciente: <strong>{{ consulta.mascota.nombre }}</strong> | Dueño: {{ consulta.mascota.dueño.nombre }} {{ consulta.mascota.dueño.apellido }}</p>
+                <div class="card-header" style="text-align: center; margin-bottom: 20px; border-bottom: 2px solid #f1f5f9; padding-bottom: 15px;">
+                    <h2 style="margin: 0 0 5px 0;">Pre-facturación de Atención</h2>
+                    <p style="margin: 0; color: #64748b; font-size: 14px;">
+                        Paciente: <strong style="color: #1e293b;">🐾 {{ consulta.mascota.nombre }}</strong> ({{ consulta.mascota.especie }}) | 
+                        Tutor: <strong style="color: #1e293b;">👤 {{ consulta.mascota.dueño.nombre }} {{ consulta.mascota.dueño.apellido }}</strong>
+                    </p>
                 </div>
 
-                <form method="post" class="custom-form">
+                <form method="post" class="custom-form" id="form-conceptos">
                     {% csrf_token %}
 
                     <div class="conceptos-wrapper">
-                        <h4>📋 Ítems cargados automáticamente:</h4>
-                        <ul>
-                            <li>Honorarios por Consulta Médica Veterinaria — <strong>$10.000,00</strong></li>
-                        </ul>
-                        
-                        <hr>
-
-                        <h4>💉 Seleccione los Medicamentos / Insumos aplicados:</h4>
-                        
-                        <div style="margin-bottom: 15px;">
-                            <input type="text" 
-                                id="buscador-productos" 
-                                placeholder="🔍 Buscar producto por nombre..." 
-                                style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 14px; box-sizing: border-box;">
+                        <div style="background-color: #f0fdfa; border: 1px solid #ccfbf1; border-radius: 8px; padding: 12px 16px; margin-bottom: 20px;">
+                            <h4 style="margin: 0 0 6px 0; color: #0f766e; font-size: 14px;">📋 Ítems cargados automáticamente:</h4>
+                            <div style="display: flex; justify-content: space-between; align-items: center; font-size: 14px;">
+                                <span>{{ honorario.nombre|default:"Honorarios por Consulta Médica Veterinaria" }}</span>
+                                <strong style="color: #0f766e;">${{ honorario.precio_unitario }}</strong>
+                            </div>
                         </div>
 
-                        <div id="lista-productos" class="checkbox-group" style="max-height: 250px; overflow-y: auto; margin-bottom: 20px; border: 1px solid #e2e8f0; padding: 10px; border-radius: 6px;">
-                            {% for producto in medicamentos_disponibles %}
-                                <div class="checkbox-item producto-item" style="margin-bottom: 10px; display: flex; align-items: center;">
-                                    <input type="checkbox" name="medicamentos_seleccionados" value="{{ producto.id }}" id="prod_{{ producto.id }}" style="margin-right: 10px; transform: scale(1.2); cursor: pointer;"
-                                        {% if producto.id in productos_seleccionados %}
-                                            checked
-                                        {% endif %}
-                                    >
-                                    
-                                    <label for="prod_{{ producto.id }}" class="producto-nombre" style="cursor: pointer; font-size: 15px;">
-                                        <strong>{{ producto.nombre }}</strong> — ${{ producto.precio_unitario }} 
-                                        <span style="color: #64748b; font-size: 12px;">({{ producto.get_categoria_display }})</span>
-                                    </label>
-                                </div>
-                            {% empty %}
-                                <p style="color: #64748b; font-style: italic;">No hay medicamentos o vacunas disponibles en el sistema.</p>
-                            {% endfor %}
-                            
-                            <p id="sin-resultados" style="color: #ef4444; font-style: italic; display: none;">No se encontraron productos con ese nombre.</p>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                            <h4 style="margin: 0; color: #334155;">💉 Medicamentos e Insumos aplicados:</h4>
+                            <span style="font-size: 12px; color: #64748b;">Marque el producto e indique la cantidad</span>
+                        </div>
+                        
+                        <div style="margin-bottom: 12px;">
+                            <input type="text" 
+                                id="buscador-productos" 
+                                placeholder="🔍 Buscar por nombre de medicamento, vacuna o insumo..." 
+                                style="width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; box-sizing: border-box; background-color: #f8fafc;">
+                        </div>
+
+                        <div class="table-conceptos-wrapper">
+                            <table class="tabla-conceptos">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 45px; text-align: center;">Aplicar</th>
+                                        <th style="text-align: left;">Producto / Insumo</th>
+                                        <th style="width: 110px; text-align: right;">Precio Unit.</th>
+                                        <th style="width: 100px; text-align: center;">Cantidad</th>
+                                        <th style="width: 110px; text-align: right;">Subtotal</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="lista-productos">
+                                    {% for producto in medicamentos_disponibles %}
+                                        <tr class="producto-item {% if producto.seleccionado %}fila-seleccionada{% endif %}" id="row_{{ producto.id }}">
+                                            <td style="text-align: center;">
+                                                <input type="checkbox"
+                                                    name="medicamentos_seleccionados"
+                                                    value="{{ producto.id }}"
+                                                    id="check_{{ producto.id }}"
+                                                    class="check-producto"
+                                                    data-prod-id="{{ producto.id }}"
+                                                    data-precio="{{ producto.precio_unitario }}"
+                                                    style="transform: scale(1.2); cursor: pointer;"
+                                                    {% if producto.seleccionado %}checked{% endif %}>
+                                            </td>
+                                            <td>
+                                                <label for="check_{{ producto.id }}" class="producto-nombre" style="cursor: pointer; display: block; margin: 0;">
+                                                    <strong style="color: #1e293b; font-size: 14px;">{{ producto.nombre }}</strong>
+                                                    <span style="display: block; font-size: 12px; color: #64748b;">{{ producto.get_categoria_display }}</span>
+                                                </label>
+                                            </td>
+                                            <td style="text-align: right; color: #475569; font-weight: 500;">
+                                                ${{ producto.precio_unitario }}
+                                            </td>
+                                            <td style="text-align: center;">
+                                                <input type="number"
+                                                    name="cantidad_{{ producto.id }}"
+                                                    id="cant_{{ producto.id }}"
+                                                    min="1"
+                                                    max="99"
+                                                    value="{{ producto.cantidad_actual|default:1 }}"
+                                                    class="input-cantidad"
+                                                    data-prod-id="{{ producto.id }}"
+                                                    data-precio="{{ producto.precio_unitario }}"
+                                                    {% if not producto.seleccionado %}disabled{% endif %}>
+                                            </td>
+                                            <td style="text-align: right;">
+                                                <strong class="item-subtotal" id="subtotal_{{ producto.id }}" style="color: #0284c7; font-size: 13px;">
+                                                    $0,00
+                                                </strong>
+                                            </td>
+                                        </tr>
+                                    {% empty %}
+                                        <tr>
+                                            <td colspan="5" style="padding: 25px; text-align: center; color: #64748b; font-style: italic;">
+                                                No hay medicamentos o vacunas disponibles en el catálogo.
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <p id="sin-resultados" style="color: #ef4444; font-style: italic; display: none; margin: -5px 0 15px 0; font-size: 13px;">
+                            No se encontraron productos que coincidan con la búsqueda.
+                        </p>
+
+                        <!-- TARJETA RESUMEN TOTALES EN VIVO -->
+                        <div class="resumen-totales-card">
+                            <div style="display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 6px; color: #475569;">
+                                <span>Honorarios profesionales:</span>
+                                <strong>${{ honorario.precio_unitario }}</strong>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 10px; color: #475569;">
+                                <span>Medicamentos e insumos aplicados:</span>
+                                <strong id="total-medicamentos" style="color: #0284c7;">$0,00</strong>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; font-size: 18px; font-weight: 700; border-top: 2px solid #e2e8f0; padding-top: 10px; color: #1e293b;">
+                                <span>TOTAL ESTIMADO FACTURA:</span>
+                                <span id="gran-total" style="color: #10b981;">$0,00</span>
+                            </div>
                         </div>
                     </div>
 
-                    <script>
-                        document.getElementById('buscador-productos').addEventListener('input', function(e) {
-                            // Convertimos lo que escribe el usuario a minúsculas y le sacamos espacios extra
-                            const terminoBusqueda = e.target.value.toLowerCase().trim();
-                            const items = document.querySelectorAll('.producto-item');
-                            let encontrados = 0;
+                    <div class="form-actions" style="display: flex; gap: 12px; margin-top: 20px; flex-wrap: wrap;">
+                        <button type="submit" name="accion" value="volver_consulta" class="btn-secondary" style="padding: 11px 16px; cursor: pointer; display: flex; align-items: center; gap: 6px;" title="Guarda los ítems seleccionados y vuelve a editar los datos clínicos de la consulta">
+                            ⬅️ Volver a la Consulta
+                        </button>
+                        <button type="submit" name="accion" value="guardar" class="btn-secondary" style="flex: 1; padding: 11px;">
+                            💾 Guardar Borrador
+                        </button>
+                        <button type="submit" name="accion" value="enviar" class="btn-primary" style="flex: 2; padding: 11px; background-color: #10b981;">
+                            🚀 Confirmar y Enviar a Caja
+                        </button>
+                    </div>
 
-                            items.forEach(function(item) {
-                                // Buscamos el texto dentro del tag label de cada producto
-                                const nombreProducto = item.querySelector('.producto-nombre').textContent.toLowerCase();
-                                
-                                if (nombreProducto.includes(terminoBusqueda)) {
-                                    item.style.display = 'flex'; // Si coincide, lo mostramos
-                                    encontrados++;
-                                } else {
-                                    item.style.display = 'none';  // Si no coincide, lo ocultamos
-                                }
-                            });
-
-                            // Si no hay ninguna coincidencia, mostramos el cartel de "Sin resultados"
-                            const cartelSinResultados = document.getElementById('sin-resultados');
-                            if (encontrados === 0 && terminoBusqueda !== '') {
-                                cartelSinResultados.style.display = 'block';
-                            } else {
-                                cartelSinResultados.style.display = 'none';
-                            }
-                        });
-                    </script>
-
-                    <div class="form-actions">
-                        
-                        <button type="submit" name="accion" value="guardar" class="btn-secondary">Guardar</button>
-
-                        <button type="submit" name="accion" value="enviar" class="btn-primary">Enviar a Caja</button>
-                        
-                        <a href="{% url 'consultas_pendientes' %}" class="btn-secondary">Volver</a>
+                    <div style="text-align: center; margin-top: 15px;">
+                        <a href="{% url 'consultas_pendientes' %}" style="color: #64748b; font-size: 13px; text-decoration: none;">
+                            ← Salir a Sala de Espera (la prefactura quedará guardada en borrador)
+                        </a>
                     </div>
                 </form>
 
             </div>
         </main>
     </div>
+
+    <script>
+        const PRECIO_HONORARIOS = parseFloat("{{ precio_honorarios|stringformat:'f' }}") || 10000.00;
+
+        function formatearMoneda(monto) {
+            return '$' + Number(monto).toLocaleString('es-AR', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
+        }
+
+        function recalcularTotales() {
+            let totalInsumos = 0;
+            const checks = document.querySelectorAll('.check-producto');
+
+            checks.forEach(function (check) {
+                const prodId = check.getAttribute('data-prod-id');
+                const precio = parseFloat(check.getAttribute('data-precio')) || 0;
+                const cantInput = document.getElementById('cant_' + prodId);
+                const subtotalEl = document.getElementById('subtotal_' + prodId);
+                const fila = document.getElementById('row_' + prodId);
+
+                if (check.checked) {
+                    cantInput.disabled = false;
+                    let cant = parseInt(cantInput.value) || 1;
+                    if (cant < 1) {
+                        cant = 1;
+                        cantInput.value = 1;
+                    }
+                    const subtotal = precio * cant;
+                    totalInsumos += subtotal;
+                    subtotalEl.textContent = formatearMoneda(subtotal);
+                    fila.classList.add('fila-seleccionada');
+                } else {
+                    cantInput.disabled = true;
+                    subtotalEl.textContent = '$0,00';
+                    fila.classList.remove('fila-seleccionada');
+                }
+            });
+
+            document.getElementById('total-medicamentos').textContent = formatearMoneda(totalInsumos);
+            const granTotal = PRECIO_HONORARIOS + totalInsumos;
+            document.getElementById('gran-total').textContent = formatearMoneda(granTotal);
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            // Eventos para checkboxes
+            document.querySelectorAll('.check-producto').forEach(function (check) {
+                check.addEventListener('change', recalcularTotales);
+            });
+
+            // Eventos para inputs de cantidad
+            document.querySelectorAll('.input-cantidad').forEach(function (input) {
+                input.addEventListener('input', recalcularTotales);
+                input.addEventListener('change', recalcularTotales);
+            });
+
+            // Buscador en tiempo real de productos
+            document.getElementById('buscador-productos').addEventListener('input', function (e) {
+                const termino = e.target.value.toLowerCase().trim();
+                const items = document.querySelectorAll('.producto-item');
+                let encontrados = 0;
+
+                items.forEach(function (item) {
+                    const nombre = item.querySelector('.producto-nombre').textContent.toLowerCase();
+                    if (nombre.includes(termino)) {
+                        item.style.display = '';
+                        encontrados++;
+                    } else {
+                        item.style.display = 'none';
+                    }
+                });
+
+                const cartelSinResultados = document.getElementById('sin-resultados');
+                if (encontrados === 0 && termino !== '') {
+                    cartelSinResultados.style.display = 'block';
+                } else {
+                    cartelSinResultados.style.display = 'none';
+                }
+            });
+
+            // Calcular subtotales iniciales de ítems previamente guardados
+            recalcularTotales();
+        });
+    </script>
 </body>
 </html>

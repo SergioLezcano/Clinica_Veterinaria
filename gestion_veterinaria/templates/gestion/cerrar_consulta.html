@@ -30,6 +30,21 @@
                     <p style="font-size: 16px; color: #1e293b; font-weight: 500; margin: 0;">{{ object.motivo }}</p>
                 </div>
 
+                {% if tiene_borrador %}
+                <div style="background-color: #eff6ff; border: 1px solid #bfdbfe; color: #1e40af; padding: 14px 18px; border-radius: 8px; margin: 20px 0; display: flex; justify-content: space-between; align-items: center; gap: 14px; flex-wrap: wrap;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <span style="font-size: 22px;">📝</span>
+                        <div style="font-size: 14px; line-height: 1.4;">
+                            <strong>Pre-factura en curso:</strong>
+                            Esta consulta ya cuenta con un borrador de pre-facturación. Podés modificar el diagnóstico u observaciones y continuar, o ir directamente a los conceptos.
+                        </div>
+                    </div>
+                    <a href="{% url 'cargar_conceptos_consulta' object.id %}" class="btn-primary" style="background-color: #0284c7; color: white; text-decoration: none; padding: 8px 14px; font-size: 13px; border-radius: 6px; white-space: nowrap;">
+                        Ir a Pre-facturación ➡️
+                    </a>
+                </div>
+                {% endif %}
+
                 <form method="post" class="custom-form">
                     {% csrf_token %}
                     <div class="django-form-fields">
@@ -45,9 +60,13 @@
                         <label>OBSERVACIONES</label>
                         {{ form.observaciones }}
                     </div>
-                    <div class="form-actions">
-                        <button type="submit" class="btn-primary" style="background-color: #d97706;">Finalizar y Guardar</button>
-                        <a href="{% url 'consultas_pendientes' %}" class="btn-secondary">Volver</a>
+                    <div class="form-actions" style="display: flex; gap: 12px; margin-top: 20px;">
+                        <button type="submit" class="btn-primary" style="flex: 2; background-color: #0ea5e9; padding: 11px;">
+                            🩺 Guardar y Continuar a Pre-facturación
+                        </button>
+                        <a href="{% url 'consultas_pendientes' %}" class="btn-secondary" style="flex: 1; text-align: center; text-decoration: none; line-height: 2.4; padding: 0 15px;">
+                            Volver a Sala de Espera
+                        </a>
                     </div>
                 </form>
             </div>

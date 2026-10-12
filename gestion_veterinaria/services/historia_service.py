@@ -49,6 +49,23 @@ class HistoriaService:
         )
 
     @staticmethod
+    def con_prefactura_pendiente():
+        """
+        Devuelve las consultas con prefactura en borrador
+        (atendidas clínicamente pero no enviadas a caja).
+        """
+        return (
+            HistoriaClinica.objects
+            .filter(factura__estado="BO")
+            .select_related(
+                "mascota",
+                "mascota__dueño",
+                "factura"
+            )
+            .order_by("-fecha_consulta")
+        )
+
+    @staticmethod
     def historial(busqueda=None):
         """
         Devuelve el historial clínico.

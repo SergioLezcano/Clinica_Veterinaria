@@ -19,7 +19,6 @@ class CargarConceptosConsultaView(LoginRequiredMixin, AdminRequiredMixin, Templa
     template_name = 'pagos/cargar_conceptos.html'
 
     def get_context_data(self, **kwargs):
-
         context = super().get_context_data(**kwargs)
 
         # 1) Obtener la consulta
@@ -32,47 +31,59 @@ class CargarConceptosConsultaView(LoginRequiredMixin, AdminRequiredMixin, Templa
             consulta
         )
 
-        # 3) Enviar datos al template
+        # 3) Mapeo de productos ya seleccionados con su cantidad guardada
+        detalles_guardados = {
+            d.producto_id: d.cantidad
+            for d in factura.detalles.exclude(producto__categoria="HON")
+        }
+
+        honorario = FacturaService.obtener_honorarios()
         context["consulta"] = consulta
-
         context["factura"] = factura
+        context["honorario"] = honorario
+        context["precio_honorarios"] = float(honorario.precio_unitario)
 
-        context["medicamentos_disponibles"] = (
-            FacturaService.productos_facturables()
-        )
+        medicamentos = list(FacturaService.productos_facturables())
+        for prod in medicamentos:
+            prod.seleccionado = prod.id in detalles_guardados
+            prod.cantidad_actual = detalles_guardados.get(prod.id, 1)
 
-        context["productos_seleccionados"] = list(
-
-            factura.detalles.exclude( # type: ignore
-
-                producto__categoria="HON"
-
-            ).values_list(
-
-                "producto_id",
-
-                flat=True
-
-            )
-
-        )
+        context["medicamentos_disponibles"] = medicamentos
+        context["productos_seleccionados"] = list(detalles_guardados.keys())
 
         return context
 
     def post(self, request, *args, **kwargs):
-
         consulta_id = self.kwargs["consulta_id"]
+        seleccionados = request.POST.getlist("medicamentos_seleccionados")
+
+        # Recopilar las cantidades ingresadas por el médico
+        cantidades = {}
+        for prod_id in seleccionados:
+            cant_str = request.POST.get(f"cantidad_{prod_id}", "1")
+            try:
+                cant = int(cant_str)
+                if cant < 1:
+                    cant = 1
+            except (ValueError, TypeError):
+                cant = 1
+            cantidades[int(prod_id)] = cant
 
         FacturaService.actualizar_borrador(
             consulta_id,
-            request.POST.getlist("medicamentos_seleccionados")
+            productos_ids=seleccionados,
+            cantidades=cantidades
         )
 
         if request.POST.get("accion") == "guardar":
-
             return redirect(
                 "cargar_conceptos_consulta",
                 consulta_id=consulta_id
+            )
+        elif request.POST.get("accion") == "volver_consulta":
+            return redirect(
+                "cerrar_consulta",
+                pk=consulta_id
             )
 
         FacturaService.enviar_a_caja(
