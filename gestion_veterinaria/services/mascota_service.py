@@ -1,8 +1,8 @@
-# gestion/services/mascota_service.py
-
 from django.db import transaction
+from django.db.models import Q
+from django.shortcuts import get_object_or_404
 
-from ..models import Mascota, Dueño, HistoriaClinica
+from ..models import Mascota
 
 
 class MascotaService:
@@ -11,15 +11,19 @@ class MascotaService:
     dueños y preconsultas.
     """
     @staticmethod
-    def buscar_mascota(nombre=None):
+    def buscar_mascota(termino=None):
 
-        if not nombre:
+        if not termino:
             return Mascota.objects.none()
 
         return (
             Mascota.objects
             .select_related("dueño")
-            .filter(nombre__icontains=nombre)
+            .filter(
+                Q(nombre__icontains=termino)
+                | Q(dueño__apellido__icontains=termino)
+                | Q(dueño__nombre__icontains=termino)
+            )
             .order_by("nombre")
         )
 
@@ -39,10 +43,11 @@ class MascotaService:
     
     @staticmethod
     @transaction.atomic
-    def crear_preconsulta(form, mascota_id):
+    def crear_preconsulta(form, mascota_id=None):
 
         if mascota_id:
-            form.instance.mascota_id = mascota_id
+            mascota = get_object_or_404(Mascota, pk=mascota_id)
+            form.instance.mascota = mascota
 
         consulta = form.save()
 

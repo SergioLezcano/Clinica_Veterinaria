@@ -1,0 +1,691 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agenda y Calendario de Turnos - Veterinaria</title>
+    <link rel="stylesheet" href="{% static 'gestion/css/estilos.css' %}?v=11">
+    
+    <!-- FullCalendar CDN v6 -->
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@fullcalendar/core@6.1.15/locales/es.global.min.js"></script>
+
+    <style>
+        .agenda-layout {
+            display: grid;
+            grid-template-columns: 1fr 340px;
+            gap: 25px;
+            margin-top: 20px;
+        }
+        @media (max-width: 1024px) {
+            .agenda-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+        .calendar-card {
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.04);
+            border: 1px solid #e2e8f0;
+        }
+        .sidebar-turnos {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        .stat-box {
+            background: #ffffff;
+            border-radius: 10px;
+            padding: 15px;
+            border: 1px solid #e2e8f0;
+            text-align: center;
+        }
+        .stat-number {
+            font-size: 26px;
+            font-weight: 700;
+            display: block;
+        }
+        .stat-label {
+            font-size: 13px;
+            color: #64748b;
+        }
+        .proximos-card {
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.04);
+        }
+        .proximos-card h3 {
+            margin: 0 0 15px;
+            font-size: 16px;
+            color: #1e293b;
+            border-bottom: 2px solid #f1f5f9;
+            padding-bottom: 10px;
+        }
+        .item-proximo {
+            padding: 10px 0;
+            border-bottom: 1px solid #f1f5f9;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .item-proximo:last-child {
+            border-bottom: none;
+        }
+        .btn-checkin-quick {
+            background-color: #10b981;
+            color: #ffffff;
+            border: none;
+            padding: 3px 8px;
+            border-radius: 5px;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .btn-checkin-quick:hover {
+            background-color: #059669;
+            transform: translateY(-1px);
+        }
+        .badge-estado {
+            font-size: 11px;
+            padding: 2px 7px;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+        .badge-estado-PEN {
+            background-color: #fef3c7;
+            color: #b45309;
+        }
+        .badge-estado-CONF {
+            background-color: #e0f2fe;
+            color: #0369a1;
+        }
+        .badge-estado-ATEN {
+            background-color: #d1fae5;
+            color: #065f46;
+        }
+        .badge-estado-CANC {
+            background-color: #fee2e2;
+            color: #991b1b;
+        }
+        .fc {
+            font-family: inherit;
+        }
+        .fc-toolbar-title {
+            font-size: 1.25rem !important;
+            font-weight: 700 !important;
+            color: #1e293b;
+        }
+        .fc-button-primary {
+            background-color: #0ea5e9 !important;
+            border-color: #0ea5e9 !important;
+            border-radius: 6px !important;
+            text-transform: capitalize;
+            font-weight: 500 !important;
+        }
+        .fc-button-primary:hover {
+            background-color: #0284c7 !important;
+            border-color: #0284c7 !important;
+        }
+        .fc-event {
+            cursor: pointer;
+            border-radius: 4px;
+            padding: 2px 4px;
+            font-size: 12px;
+            transition: transform 0.1s ease;
+        }
+        .fc-event:hover {
+            transform: scale(1.02);
+        }
+
+        /* Modales */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 23, 42, 0.6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            visibility: hidden;
+            opacity: 0;
+            transition: all 0.25s ease;
+        }
+        .modal-overlay.active {
+            visibility: visible;
+            opacity: 1;
+        }
+        .modal-container {
+            background: #ffffff;
+            border-radius: 14px;
+            width: 100%;
+            max-width: 520px;
+            padding: 30px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #e2e8f0;
+            padding-bottom: 15px;
+        }
+        .modal-header h2 {
+            margin: 0;
+            font-size: 20px;
+            color: #0f172a;
+        }
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 22px;
+            color: #64748b;
+            cursor: pointer;
+        }
+        .form-group {
+            margin-bottom: 16px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 600;
+            font-size: 14px;
+            color: #334155;
+        }
+        .form-input, .form-textarea, .form-select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            font-size: 14px;
+            box-sizing: border-box;
+            background-color: #f8fafc;
+        }
+        .form-input:focus, .form-textarea:focus, .form-select:focus {
+            outline: none;
+            border-color: #0ea5e9;
+            background-color: #ffffff;
+            box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.15);
+        }
+        .email-notice {
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            color: #166534;
+            padding: 10px 12px;
+            border-radius: 6px;
+            font-size: 13px;
+            margin-bottom: 18px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="panel-container">
+        <header class="panel-header">
+            <div class="user-info">
+                {% if es_admin or user.is_superuser or user.is_staff or user.perfilusuario.rol == 'ADMIN' %}
+                    <span>Médico: <strong>{{ user.username }}</strong></span>
+                    <span class="badge-permiso" style="background-color: #fef3c7; color: #b45309;">Administrador</span>
+                {% else %}
+                    <span>Operador: <strong>{{ user.username }}</strong></span>
+                    <span class="badge-permiso">Área Administrativa</span>
+                {% endif %}
+            </div>
+            <div style="display: flex; gap: 10px; align-items: center;">
+                {% if es_admin or user.is_superuser or user.is_staff or user.perfilusuario.rol == 'ADMIN' %}
+                    <a href="{% url 'menu_administrador' %}" class="btn-clear btn-menu">Volver al Panel</a>
+                {% else %}
+                    <a href="{% url 'menu_operador' %}" class="btn-clear btn-menu">Volver al Panel</a>
+                {% endif %}
+                <form action="{% url 'logout' %}" method="post" style="margin:0;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn-logout">Cerrar Sesión</button>
+                </form>
+            </div>
+        </header>
+
+        <main class="menu-content" style="max-width: 1300px;">
+            <div class="menu-welcome" style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #e2e8f0; padding-bottom: 15px;">
+                <div>
+                    <h1 style="margin: 0;">Agenda y Calendario de Turnos</h1>
+                    <p style="margin: 5px 0 0 0;">Asignación de citas, control de agenda y confirmación automática por email</p>
+                </div>
+                <button type="button" id="btn-abrir-modal-nuevo" class="btn-search" style="background-color: #0ea5e9; padding: 12px 22px; font-size: 14px; cursor: pointer; border: none; border-radius: 8px; color: white; font-weight: 600;">
+                    ➕ Agendar Nuevo Turno
+                </button>
+            </div>
+
+            {% if messages %}
+                <div style="margin-top: 15px;">
+                    {% for message in messages %}
+                        <div class="alert-box" style="background-color: #ecfdf5; border: 1px solid #a7f3d0; color: #065f46; padding: 12px 16px; border-radius: 8px; margin-bottom: 10px;">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <div class="agenda-layout">
+                <!-- Columna Izquierda: Calendario interactivo -->
+                <div class="calendar-card">
+                    <div id="calendar"></div>
+                </div>
+
+                <!-- Columna Derecha: Métricas y Próximos Turnos -->
+                <div class="sidebar-turnos">
+                    <div class="stats-grid">
+                        <div class="stat-box" style="border-left: 4px solid #f59e0b;">
+                            <span class="stat-number" style="color: #f59e0b;">{{ total_pendientes }}</span>
+                            <span class="stat-label">Pendientes</span>
+                        </div>
+                        <div class="stat-box" style="border-left: 4px solid #0ea5e9;">
+                            <span class="stat-number" style="color: #0ea5e9;">{{ total_confirmados }}</span>
+                            <span class="stat-label">Confirmados</span>
+                        </div>
+                    </div>
+
+                    <div class="proximos-card">
+                        <h3>📅 Próximas Citas</h3>
+                        {% for t in ultimos_turnos %}
+                            <div class="item-proximo" id="item-turno-{{ t.id }}" style="display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #f1f5f9;">
+                                <div>
+                                    <strong style="font-size: 14px; color: #1e293b;">🐾 {{ t.mascota.nombre }}</strong>
+                                    <span style="display: block; font-size: 12px; color: #64748b;">
+                                        {{ t.fecha_hora|date:"d/m/Y H:i" }} hs ({{ t.mascota.dueño.apellido }})
+                                    </span>
+                                </div>
+                                <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 4px;">
+                                    <span class="badge-estado badge-estado-{{ t.estado }}">
+                                        {{ t.get_estado_display }}
+                                    </span>
+                                    {% if t.estado != 'ATEN' and t.estado != 'CANC' %}
+                                        <button type="button" class="btn-checkin-quick btn-accion-checkin" data-turno-id="{{ t.id }}" data-mascota="{{ t.mascota.nombre }}" title="Ingresar paciente a Sala de Espera médica">
+                                            🚀 Check-in
+                                        </button>
+                                    {% elif t.estado == 'ATEN' %}
+                                        <span style="font-size: 10px; color: #059669; font-weight: 600;">✓ En Espera</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        {% empty %}
+                            <p style="color: #94a3b8; font-size: 13px; text-align: center; margin: 20px 0;">
+                                No hay turnos agendados recientemente.
+                            </p>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- MODAL 1: NUEVO TURNO -->
+    <div id="modal-nuevo-turno" class="modal-overlay">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h2>📅 Agendar Cita / Turno</h2>
+                <button type="button" class="modal-close" onclick="cerrarModalNuevo()">&times;</button>
+            </div>
+
+            <form id="form-nuevo-turno" method="post" action="{% url 'crear_turno' %}">
+                {% csrf_token %}
+
+                <div class="email-notice">
+                    ✉️ <strong>Aviso:</strong> Al registrar el turno, el sistema enviará automáticamente un correo con los detalles al dueño.
+                </div>
+
+                <div id="modal-form-errors" style="display:none; background-color: #fee2e2; color: #991b1b; padding: 10px; border-radius: 6px; margin-bottom: 15px; font-size: 13px;"></div>
+
+                <div class="form-group">
+                    <label for="id_mascota">Paciente (Mascota):</label>
+                    {{ form.mascota }}
+                </div>
+
+                <div class="form-group">
+                    <label for="id_fecha_hora">Fecha y Hora:</label>
+                    {{ form.fecha_hora }}
+                </div>
+
+                <div class="form-group">
+                    <label for="id_motivo">Motivo de la Cita:</label>
+                    {{ form.motivo }}
+                </div>
+
+                <div class="form-group">
+                    <label for="id_estado">Estado Inicial:</label>
+                    {{ form.estado }}
+                </div>
+
+                <div class="form-group">
+                    <label for="id_observaciones">Observaciones adicionales (Opcional):</label>
+                    {{ form.observaciones }}
+                </div>
+
+                <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 25px;">
+                    <button type="button" class="btn-secondary" onclick="cerrarModalNuevo()">Cancelar</button>
+                    <button type="submit" id="btn-guardar-turno" class="btn-primary" style="background-color: #0ea5e9;">
+                        Confirmar y Enviar Email
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL 2: DETALLE DEL TURNO (Click en evento) -->
+    <div id="modal-detalle-turno" class="modal-overlay">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h2>📋 Detalle del Turno</h2>
+                <button type="button" class="modal-close" onclick="cerrarModalDetalle()">&times;</button>
+            </div>
+
+            <div id="detalle-info" style="font-size: 14px; line-height: 1.7; color: #334155;">
+                <p><strong>🐾 Paciente:</strong> <span id="det-paciente"></span> (<span id="det-especie"></span>)</p>
+                <p><strong>👤 Dueño / Tutor:</strong> <span id="det-dueno"></span></p>
+                <p><strong>📞 Contacto:</strong> <span id="det-telefono"></span> | ✉️ <span id="det-email"></span></p>
+                <p><strong>🗓️ Fecha y Hora:</strong> <span id="det-fecha"></span></p>
+                <p><strong>📝 Motivo:</strong> <span id="det-motivo"></span></p>
+                <p><strong>💡 Observaciones:</strong> <span id="det-observaciones"></span></p>
+                <p><strong>Estado:</strong> <span id="det-estado-badge" style="padding: 3px 8px; border-radius: 4px; font-weight: 600;"></span></p>
+                <p><strong>Correo enviado:</strong> <span id="det-email-estado"></span></p>
+            </div>
+
+            <div style="display: flex; gap: 10px; justify-content: flex-end; align-items: center; margin-top: 25px; border-top: 1px solid #f1f5f9; padding-top: 15px; flex-wrap: wrap;">
+                <form id="form-ingreso-turno" method="post" style="margin:0;">
+                    {% csrf_token %}
+                    <button type="submit" id="btn-ingresar-consultorio" class="btn-primary" style="background-color: #10b981; border:none; padding: 9px 18px; font-size: 13px; cursor: pointer; color: white; font-weight: 600; border-radius: 6px; display: inline-flex; align-items: center; gap: 6px;">
+                        🚀 Ingresar a Sala de Espera
+                    </button>
+                </form>
+                <div id="badge-ya-ingresado" style="display:none; color: #065f46; background-color: #d1fae5; font-size: 13px; font-weight: 600; padding: 7px 14px; border-radius: 6px;">
+                    ✅ Ingresado a Sala de Espera
+                </div>
+                <form id="form-cancelar-turno" method="post" style="margin:0;">
+                    {% csrf_token %}
+                    <button type="submit" id="btn-cancelar-turno" class="btn-logout" style="background-color: #ef4444; border:none; padding: 9px 15px; font-size: 13px; cursor: pointer; border-radius: 6px;" onclick="return confirm('¿Seguro que deseas cancelar este turno?');">
+                        ❌ Cancelar Turno
+                    </button>
+                </form>
+                <button type="button" class="btn-secondary" onclick="cerrarModalDetalle()">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let calendar;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const calendarEl = document.getElementById('calendar');
+
+            calendar = new FullCalendar.Calendar(calendarEl, {
+                locale: 'es',
+                initialView: 'dayGridMonth',
+                headerToolbar: {
+                    left: 'prev,next today',
+                    center: 'title',
+                    right: 'dayGridMonth,timeGridWeek,timeGridDay'
+                },
+                buttonText: {
+                    today: 'Hoy',
+                    month: 'Mes',
+                    week: 'Semana',
+                    day: 'Día'
+                },
+                events: "{% url 'api_eventos_turnos' %}",
+                navLinks: true,
+                selectable: true,
+                selectMirror: true,
+                nowIndicator: true,
+                slotMinTime: '08:00:00',
+                slotMaxTime: '21:00:00',
+                allDaySlot: false,
+                
+                // Clic en fecha para agendar en ese momento exacto
+                select: function(info) {
+                    abrirModalNuevo(info.startStr);
+                },
+
+                // Clic en evento existente para ver detalle
+                eventClick: function(info) {
+                    abrirModalDetalle(info.event);
+                }
+            });
+
+            calendar.render();
+
+            // Abrir modal con botón general
+            document.getElementById('btn-abrir-modal-nuevo').addEventListener('click', function() {
+                abrirModalNuevo();
+            });
+
+            // Enviar Check-in desde Modal vía AJAX
+            document.getElementById('form-ingreso-turno').addEventListener('submit', function(e) {
+                e.preventDefault();
+                const btn = document.getElementById('btn-ingresar-consultorio');
+                btn.disabled = true;
+                btn.textContent = 'Ingresando paciente...';
+
+                const formData = new FormData(this);
+                fetch(this.action, {
+                    method: 'POST',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRFToken': formData.get('csrfmiddlewaretoken')
+                    },
+                    body: formData
+                })
+                .then(r => r.json())
+                .then(data => {
+                    btn.disabled = false;
+                    btn.textContent = '🚀 Ingresar a Sala de Espera';
+                    if (data.ok) {
+                        mostrarNotificacion(data.mensaje, 'success');
+                        cerrarModalDetalle();
+                        calendar.refetchEvents();
+                        setTimeout(() => { location.reload(); }, 1200);
+                    } else {
+                        mostrarNotificacion(data.error || 'No se pudo realizar el ingreso.', 'error');
+                    }
+                })
+                .catch(err => {
+                    btn.disabled = false;
+                    btn.textContent = '🚀 Ingresar a Sala de Espera';
+                    mostrarNotificacion('Error de conexión con el servidor.', 'error');
+                });
+            });
+
+            // Cancelar turno vía AJAX
+            document.getElementById('form-cancelar-turno').addEventListener('submit', function(e) {
+                e.preventDefault();
+                const btn = document.getElementById('btn-cancelar-turno');
+                btn.disabled = true;
+                const formData = new FormData(this);
+
+                fetch(this.action, {
+                    method: 'POST',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRFToken': formData.get('csrfmiddlewaretoken')
+                    },
+                    body: formData
+                })
+                .then(r => r.json())
+                .then(data => {
+                    btn.disabled = false;
+                    if (data.ok) {
+                        mostrarNotificacion('Turno cancelado correctamente.', 'info');
+                        cerrarModalDetalle();
+                        calendar.refetchEvents();
+                        setTimeout(() => { location.reload(); }, 1200);
+                    }
+                })
+                .catch(err => {
+                    btn.disabled = false;
+                    this.submit();
+                });
+            });
+
+            // Quick check-in desde la barra lateral (event delegation)
+            document.addEventListener('click', function(e) {
+                const btn = e.target.closest('.btn-accion-checkin');
+                if (btn) {
+                    const turnoId = btn.getAttribute('data-turno-id');
+                    const mascotaNombre = btn.getAttribute('data-mascota');
+                    darIngresoDirecto(turnoId, mascotaNombre);
+                }
+            });
+        });
+
+        function abrirModalNuevo(fechaStr = null) {
+            const modal = document.getElementById('modal-nuevo-turno');
+            const fechaInput = document.getElementById('id_fecha_hora');
+            
+            if (fechaStr) {
+                let d = new Date(fechaStr);
+                if (fechaStr.length === 10) {
+                    d.setHours(9, 0, 0);
+                }
+                const offset = d.getTimezoneOffset() * 60000;
+                const localISOTime = (new Date(d.getTime() - offset)).toISOString().slice(0, 16);
+                fechaInput.value = localISOTime;
+            } else {
+                let ahora = new Date();
+                ahora.setHours(ahora.getHours() + 1, 0, 0, 0);
+                const offset = ahora.getTimezoneOffset() * 60000;
+                const localISOTime = (new Date(ahora.getTime() - offset)).toISOString().slice(0, 16);
+                fechaInput.value = localISOTime;
+            }
+
+            document.getElementById('modal-form-errors').style.display = 'none';
+            modal.classList.add('active');
+        }
+
+        function cerrarModalNuevo() {
+            document.getElementById('modal-nuevo-turno').classList.remove('active');
+        }
+
+        function abrirModalDetalle(event) {
+            const props = event.extendedProps;
+            document.getElementById('det-paciente').textContent = props.paciente;
+            document.getElementById('det-especie').textContent = props.especie;
+            document.getElementById('det-dueno').textContent = props.dueño;
+            document.getElementById('det-telefono').textContent = props.telefono || 'Sin teléfono';
+            document.getElementById('det-email').textContent = props.email || 'Sin correo registrado';
+            document.getElementById('det-fecha').textContent = event.start.toLocaleString('es-AR', {
+                dateStyle: 'full',
+                timeStyle: 'short'
+            });
+            document.getElementById('det-motivo').textContent = props.motivo;
+            document.getElementById('det-observaciones').textContent = props.observaciones || 'Ninguna';
+
+            const badge = document.getElementById('det-estado-badge');
+            badge.textContent = props.estado_nombre;
+            badge.style.backgroundColor = event.backgroundColor;
+            badge.style.color = '#ffffff';
+
+            document.getElementById('det-email-estado').textContent = props.notificado_email ? '✔️ Enviado' : '⚠️ Pendiente o no enviado';
+
+            // Configurar acción de ingreso a sala de espera
+            const formIngreso = document.getElementById('form-ingreso-turno');
+            const badgeYaIngresado = document.getElementById('badge-ya-ingresado');
+            formIngreso.action = `/turnos/ingreso/${event.id}/`;
+
+            // Configurar acción de cancelar
+            const formCancelar = document.getElementById('form-cancelar-turno');
+            formCancelar.action = `/turnos/cancelar/${event.id}/`;
+
+            if (props.estado_codigo === 'ATEN' || props.ingresado) {
+                formIngreso.style.display = 'none';
+                badgeYaIngresado.style.display = 'inline-block';
+                formCancelar.style.display = 'none';
+            } else if (props.estado_codigo === 'CANC') {
+                formIngreso.style.display = 'none';
+                badgeYaIngresado.style.display = 'none';
+                formCancelar.style.display = 'none';
+            } else {
+                formIngreso.style.display = 'inline-block';
+                badgeYaIngresado.style.display = 'none';
+                formCancelar.style.display = 'inline-block';
+            }
+
+            document.getElementById('modal-detalle-turno').classList.add('active');
+        }
+
+        function cerrarModalDetalle() {
+            document.getElementById('modal-detalle-turno').classList.remove('active');
+        }
+
+        // Quick Check-in desde la barra lateral
+        function darIngresoDirecto(turnoId, mascotaNombre) {
+            if (!confirm(`¿Confirmás el ingreso de ${mascotaNombre} a la Sala de Espera médica?`)) {
+                return;
+            }
+            const csrfInput = document.querySelector('[name=csrfmiddlewaretoken]');
+            const csrfToken = csrfInput ? csrfInput.value : '';
+            const formData = new FormData();
+            formData.append('csrfmiddlewaretoken', csrfToken);
+
+            fetch(`/turnos/ingreso/${turnoId}/`, {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRFToken': csrfToken
+                },
+                body: formData
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.ok) {
+                    mostrarNotificacion(data.mensaje, 'success');
+                    calendar.refetchEvents();
+                    setTimeout(() => { location.reload(); }, 1200);
+                } else {
+                    mostrarNotificacion(data.error || 'Error al procesar el ingreso.', 'error');
+                }
+            })
+            .catch(err => {
+                mostrarNotificacion('Error de conexión con el servidor.', 'error');
+            });
+        }
+
+        function mostrarNotificacion(mensaje, tipo = 'success') {
+            const toast = document.createElement('div');
+            toast.style.position = 'fixed';
+            toast.style.bottom = '25px';
+            toast.style.right = '25px';
+            toast.style.backgroundColor = tipo === 'success' ? '#10b981' : (tipo === 'info' ? '#0ea5e9' : '#ef4444');
+            toast.style.color = '#ffffff';
+            toast.style.padding = '14px 22px';
+            toast.style.borderRadius = '8px';
+            toast.style.boxShadow = '0 10px 25px rgba(0,0,0,0.2)';
+            toast.style.zIndex = '9999';
+            toast.style.fontWeight = '600';
+            toast.style.fontSize = '14px';
+            toast.textContent = mensaje;
+            document.body.appendChild(toast);
+            setTimeout(() => { toast.remove(); }, 3500);
+        }
+    </script>
+</body>
+</html>

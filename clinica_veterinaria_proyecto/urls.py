@@ -29,4 +29,5 @@ urlpatterns = [
     path('', include('gestion_veterinaria.urls')),
 
     path('pagos/', include('pagos.urls')),
+    path('turnos/', include('turnos.urls')),
 ]

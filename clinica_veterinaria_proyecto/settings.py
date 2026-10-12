@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
+import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -40,6 +41,8 @@ INSTALLED_APPS = [
     'gestion_veterinaria',
     'productos',
     'pagos',
+    'turnos',
+    'anymail',
 ]
 
 MIDDLEWARE = [
@@ -134,3 +137,19 @@ LOGIN_URL = 'login'
 LOGOUT_REDIRECT_URL = 'login'
 # Configuración global para los IDs autoincrementales de la Base de Datos
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# ==========================================
+# 📧 CONFIGURACIÓN DE CORREO ELECTRÓNICO
+# ==========================================
+# Si existe RESEND_API_KEY (ej. en Render), usa Anymail vía HTTPS REST API.
+# En desarrollo local sin API Key, imprime el correo completo en la consola.
+RESEND_API_KEY = os.environ.get('RESEND_API_KEY')
+if RESEND_API_KEY:
+    EMAIL_BACKEND = 'anymail.backends.resend.EmailBackend'
+    ANYMAIL = {
+        'RESEND_API_KEY': RESEND_API_KEY,
+    }
+    DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'Clínica Veterinaria <turnos@veterinaria.com>')
+else:
+    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+    DEFAULT_FROM_EMAIL = 'Clínica Veterinaria <turnos@veterinaria.local>'

@@ -22,6 +22,7 @@ class UsuarioService:
                     "OPERER"
                 ]
             )
+            .order_by("user__username")
         )
 
     @staticmethod
@@ -58,6 +59,9 @@ class UsuarioService:
         usuario = UsuarioService.obtener_usuario(
             usuario_id
         )
+
+        if usuario.is_superuser:
+            return usuario
 
         usuario.is_active = not usuario.is_active
 

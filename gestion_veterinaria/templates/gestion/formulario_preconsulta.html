@@ -24,6 +24,13 @@
                 </div>
                 <form method="post" class="custom-form">
                     {% csrf_token %}
+                    
+                    {% if form.errors %}
+                        <div class="error-box">
+                            Por favor, completá los campos obligatorios para enviar el paciente a consultorio.
+                        </div>
+                    {% endif %}
+
                     <div class="django-form-fields">
                         {{ form.as_p }}
                     </div>

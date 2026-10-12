@@ -34,18 +34,21 @@ El sistema permite gestionar el flujo de atención de pacientes, historias clín
 * Gestión de operadores.
 * Gestión del personal.
 
-### Recepción
+### Recepción y Operación
 
 * Registro de dueños.
 * Registro de mascotas.
-* Preconsulta.
-* Sala de espera.
+* Preconsulta y derivación médica.
+* Gestión de Turnos y Citas con Calendario interactivo (FullCalendar).
+* Check-in de citas en 1 clic con derivación automática a la Sala de Espera del médico.
+* Envío automatizado de confirmaciones por correo electrónico a los propietarios.
+* Cobro y facturación de consultas y productos.
 
 ### Atención médica
 
 * Historia clínica.
 * Evolución del paciente.
-* Registro de consultas.
+* Registro de consultas y recetas.
 
 ### Reportes
 
@@ -59,9 +62,9 @@ El sistema permite gestionar el flujo de atención de pacientes, historias clín
 
 ## Backend
 
-* Python 3.12
-* Django 4.2
-* MySQL
+* Python 3.12 / 3.13
+* Django 4.2 LTS
+* MariaDB / MySQL (compatible con MariaDB 10.4.32+)
 
 ## Dependencias principales
 
@@ -70,6 +73,7 @@ El sistema permite gestionar el flujo de atención de pacientes, historias clín
 * asgiref
 * sqlparse
 * tzdata
+* django-anymail[resend] (Comunicación transaccional HTTPS para Render)
 
 ---
 
@@ -77,12 +81,20 @@ El sistema permite gestionar el flujo de atención de pacientes, historias clín
 
 ```
 Clinica_Veterinaria/
-
 │
 ├── clinica_veterinaria_proyecto/
 ├── gestion_veterinaria/
 ├── pagos/
 ├── productos/
+├── turnos/
+│   ├── migrations/
+│   ├── services/
+│   │   └── turno_service.py
+│   ├── templates/turnos/
+│   ├── forms.py
+│   ├── models.py
+│   ├── urls.py
+│   └── views.py
 │
 ├── manage.py
 ├── requirements.txt
@@ -169,7 +181,34 @@ python manage.py runserver
 * Registro de dueños.
 * Registro de mascotas.
 * Preconsulta.
+* Agenda y asignación de Turnos con calendario.
 * Facturación.
+
+---
+
+# Configuración de Correo Electrónico (Render & Local)
+
+El sistema soporta envío híbrido de correos electrónicos transaccionales:
+
+### 1. Entorno de Desarrollo Local
+Por defecto (si la variable `RESEND_API_KEY` no está configurada), Django utiliza el backend de consola:
+```python
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+```
+Todos los correos electrónicos generados al confirmar un turno se imprimen formateados directamente en la terminal, permitiendo probar sin necesidad de credenciales ni internet.
+
+### 2. Despliegue en Render (Cloud)
+Render bloquea las conexiones salientes por los puertos SMTP estándar (puertos 25, 465 y 587). Para evitar bloqueos, el sistema implementa **`django-anymail`** conectado a la API HTTPS (puerto 443) de **[Resend](https://resend.com/)**.
+
+Para activarlo en el panel de **Environment Variables** en Render, simplemente agregue:
+```env
+RESEND_API_KEY=re_tu_api_key_de_resend
+DEFAULT_FROM_EMAIL=Clínica Veterinaria <turnos@tudominio.com>
+```
+Al detectar `RESEND_API_KEY`, Django conmuta automáticamente a:
+```python
+EMAIL_BACKEND = 'anymail.backends.resend.EmailBackend'
+```
 
 ---
 
@@ -185,14 +224,16 @@ Administrador
 ├── Sala de espera
 ├── Historias clínicas
 ├── Reportes
+├── Agenda de turnos
 └── Gestión de operadores
 
 Operador
 │
-├── Nuevo dueño
-├── Nueva mascota
-├── Preconsulta
-└── Caja
+├── 1. Nuevo dueño
+├── 2. Nueva mascota
+├── 3. Preconsulta
+├── 4. Módulo Caja / Facturación
+└── 5. Gestión de Turnos (Calendario + Notificación Email)
 ```
 
 ---

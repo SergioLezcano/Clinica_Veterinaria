@@ -47,11 +47,11 @@ class CierreConsultaForm(forms.ModelForm):
         model = HistoriaClinica
         fields = ['peso', 'temperatura', 'diagnostico', 'tratamiento', 'observaciones']
         widgets = {
-            'peso': forms.NumberInput(attrs={'step': '0.1', 'placeholder': 'kg'}),
-            'temperatura': forms.NumberInput(attrs={'step': '0.1', 'placeholder': '°C'}),
-            'diagnostico': forms.Textarea(attrs={'rows': 4, 'placeholder': 'Hallazgos clínicos...'}),
-            'tratamiento': forms.Textarea(attrs={'rows': 4, 'placeholder': 'Medicamentos y dosis...'}),
-            'observaciones': forms.Textarea(attrs={'rows': 4, 'placeholder': 'Otros datos de interés...'}),
+            'peso': forms.NumberInput(attrs={'step': '0.1', 'placeholder': '(en kg)'}),
+            'temperatura': forms.NumberInput(attrs={'step': '0.1', 'placeholder': '(en °C)'}),
+            'diagnostico': forms.Textarea(attrs={'rows': 3, 'placeholder': 'Describa el diagnóstico clínico del paciente...'}),
+            'tratamiento': forms.Textarea(attrs={'rows': 3, 'placeholder': 'Indique medicamentos, dosis y frecuencia...'}),
+            'observaciones': forms.Textarea(attrs={'rows': 2, 'placeholder': 'Notas adicionales o recordatorios'}),
         }
 
 

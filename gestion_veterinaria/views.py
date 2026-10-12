@@ -6,7 +6,7 @@ from django.urls import reverse_lazy
 from gestion_veterinaria.mixins.admin_required import AdminRequiredMixin
 
 from .models import Mascota, Dueño, HistoriaClinica
-from .forms import MascotaForm, PreConsultaForm
+from .forms import MascotaForm, PreConsultaForm, CierreConsultaForm
 from django.shortcuts import redirect
 
 from .models import PerfilUsuario
@@ -48,28 +48,8 @@ class ConsultasPendientesListView(LoginRequiredMixin, AdminRequiredMixin, ListVi
     
 class AtenderConsultaView(LoginRequiredMixin, AdminRequiredMixin, UpdateView):
     model = HistoriaClinica
-    fields = ['peso', 'temperatura', 'diagnostico', 'tratamiento', 'observaciones']
+    form_class = CierreConsultaForm
     template_name = 'gestion/cerrar_consulta.html'
-
-    def get_form(self, form_class=None):
-        form = super().get_form(form_class)
-        
-        # AGREGAMOS LOS PLACEHOLDERS E INYECTAMOS ATRIBUTOS HTML
-        form.fields['peso'].widget.attrs.update({'placeholder': '(en kg)', 'step': '0.1'})
-        form.fields['temperatura'].widget.attrs.update({'placeholder': '(en °C)', 'step': '0.1'})
-        form.fields['diagnostico'].widget.attrs.update({
-            'placeholder': 'Describa el diagnóstico clínico del paciente...',
-            'rows': 3
-        })
-        form.fields['tratamiento'].widget.attrs.update({
-            'placeholder': 'Indique medicamentos, dosis y frecuencia...',
-            'rows': 3
-        })
-        form.fields['observaciones'].widget.attrs.update({
-            'placeholder': 'Notas adicionales o recordatorios',
-            'rows': 2
-        })
-        return form
 
     def form_valid(self, form):
         consulta = HistoriaService.completar_consulta(form)

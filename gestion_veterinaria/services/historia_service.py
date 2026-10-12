@@ -72,7 +72,7 @@ class HistoriaService:
                 Q(mascota__dueño__apellido__icontains=busqueda)
             )
 
-        return queryset.order_by("-fecha_consulta")[:10]
+        return queryset.order_by("-fecha_consulta")
     
     @staticmethod
     def completar_consulta(form):
