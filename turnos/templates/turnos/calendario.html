@@ -5,240 +5,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Agenda y Calendario de Turnos - Veterinaria</title>
-    <link rel="stylesheet" href="{% static 'gestion/css/estilos.css' %}?v=11">
+    <link rel="stylesheet" href="{% static 'gestion/css/estilos.css' %}?v=12">
     
     <!-- FullCalendar CDN v6 -->
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@fullcalendar/core@6.1.15/locales/es.global.min.js"></script>
-
-    <style>
-        .agenda-layout {
-            display: grid;
-            grid-template-columns: 1fr 340px;
-            gap: 25px;
-            margin-top: 20px;
-        }
-        @media (max-width: 1024px) {
-            .agenda-layout {
-                grid-template-columns: 1fr;
-            }
-        }
-        .calendar-card {
-            background: #ffffff;
-            border-radius: 12px;
-            padding: 25px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.04);
-            border: 1px solid #e2e8f0;
-        }
-        .sidebar-turnos {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-        .stats-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-        }
-        .stat-box {
-            background: #ffffff;
-            border-radius: 10px;
-            padding: 15px;
-            border: 1px solid #e2e8f0;
-            text-align: center;
-        }
-        .stat-number {
-            font-size: 26px;
-            font-weight: 700;
-            display: block;
-        }
-        .stat-label {
-            font-size: 13px;
-            color: #64748b;
-        }
-        .proximos-card {
-            background: #ffffff;
-            border-radius: 12px;
-            padding: 20px;
-            border: 1px solid #e2e8f0;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.04);
-        }
-        .proximos-card h3 {
-            margin: 0 0 15px;
-            font-size: 16px;
-            color: #1e293b;
-            border-bottom: 2px solid #f1f5f9;
-            padding-bottom: 10px;
-        }
-        .item-proximo {
-            padding: 10px 0;
-            border-bottom: 1px solid #f1f5f9;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .item-proximo:last-child {
-            border-bottom: none;
-        }
-        .btn-checkin-quick {
-            background-color: #10b981;
-            color: #ffffff;
-            border: none;
-            padding: 3px 8px;
-            border-radius: 5px;
-            font-size: 11px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-        }
-        .btn-checkin-quick:hover {
-            background-color: #059669;
-            transform: translateY(-1px);
-        }
-        .badge-estado {
-            font-size: 11px;
-            padding: 2px 7px;
-            border-radius: 4px;
-            font-weight: 600;
-        }
-        .badge-estado-PEN {
-            background-color: #fef3c7;
-            color: #b45309;
-        }
-        .badge-estado-CONF {
-            background-color: #e0f2fe;
-            color: #0369a1;
-        }
-        .badge-estado-ATEN {
-            background-color: #d1fae5;
-            color: #065f46;
-        }
-        .badge-estado-CANC {
-            background-color: #fee2e2;
-            color: #991b1b;
-        }
-        .fc {
-            font-family: inherit;
-        }
-        .fc-toolbar-title {
-            font-size: 1.25rem !important;
-            font-weight: 700 !important;
-            color: #1e293b;
-        }
-        .fc-button-primary {
-            background-color: #0ea5e9 !important;
-            border-color: #0ea5e9 !important;
-            border-radius: 6px !important;
-            text-transform: capitalize;
-            font-weight: 500 !important;
-        }
-        .fc-button-primary:hover {
-            background-color: #0284c7 !important;
-            border-color: #0284c7 !important;
-        }
-        .fc-event {
-            cursor: pointer;
-            border-radius: 4px;
-            padding: 2px 4px;
-            font-size: 12px;
-            transition: transform 0.1s ease;
-        }
-        .fc-event:hover {
-            transform: scale(1.02);
-        }
-
-        /* Modales */
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(15, 23, 42, 0.6);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 9999;
-            visibility: hidden;
-            opacity: 0;
-            transition: all 0.25s ease;
-        }
-        .modal-overlay.active {
-            visibility: visible;
-            opacity: 1;
-        }
-        .modal-container {
-            background: #ffffff;
-            border-radius: 14px;
-            width: 100%;
-            max-width: 520px;
-            padding: 30px;
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-            max-height: 90vh;
-            overflow-y: auto;
-            position: relative;
-        }
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            border-bottom: 1px solid #e2e8f0;
-            padding-bottom: 15px;
-        }
-        .modal-header h2 {
-            margin: 0;
-            font-size: 20px;
-            color: #0f172a;
-        }
-        .modal-close {
-            background: none;
-            border: none;
-            font-size: 22px;
-            color: #64748b;
-            cursor: pointer;
-        }
-        .form-group {
-            margin-bottom: 16px;
-        }
-        .form-group label {
-            display: block;
-            margin-bottom: 6px;
-            font-weight: 600;
-            font-size: 14px;
-            color: #334155;
-        }
-        .form-input, .form-textarea, .form-select {
-            width: 100%;
-            padding: 10px 12px;
-            border: 1px solid #cbd5e1;
-            border-radius: 8px;
-            font-size: 14px;
-            box-sizing: border-box;
-            background-color: #f8fafc;
-        }
-        .form-input:focus, .form-textarea:focus, .form-select:focus {
-            outline: none;
-            border-color: #0ea5e9;
-            background-color: #ffffff;
-            box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.15);
-        }
-        .email-notice {
-            background: #f0fdf4;
-            border: 1px solid #bbf7d0;
-            color: #166534;
-            padding: 10px 12px;
-            border-radius: 6px;
-            font-size: 13px;
-            margin-bottom: 18px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-    </style>
 </head>
 <body>
 
@@ -247,13 +18,13 @@
             <div class="user-info">
                 {% if es_admin or user.is_superuser or user.is_staff or user.perfilusuario.rol == 'ADMIN' %}
                     <span>Médico: <strong>{{ user.username }}</strong></span>
-                    <span class="badge-permiso" style="background-color: #fef3c7; color: #b45309;">Administrador</span>
+                    <span class="badge-permiso badge-admin">Administrador</span>
                 {% else %}
                     <span>Operador: <strong>{{ user.username }}</strong></span>
-                    <span class="badge-permiso">Área Administrativa</span>
+                    <span class="badge-permiso badge-operador">Área Administrativa</span>
                 {% endif %}
             </div>
-            <div style="display: flex; gap: 10px; align-items: center;">
+            <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
                 {% if es_admin or user.is_superuser or user.is_staff or user.perfilusuario.rol == 'ADMIN' %}
                     <a href="{% url 'menu_administrador' %}" class="btn-clear btn-menu">Volver al Panel</a>
                 {% else %}
@@ -267,20 +38,20 @@
         </header>
 
         <main class="menu-content" style="max-width: 1300px;">
-            <div class="menu-welcome" style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #e2e8f0; padding-bottom: 15px;">
+            <div class="menu-header-bar">
                 <div>
-                    <h1 style="margin: 0;">Agenda y Calendario de Turnos</h1>
-                    <p style="margin: 5px 0 0 0;">Asignación de citas, control de agenda y confirmación automática por email</p>
+                    <h1>Agenda y Calendario de Turnos</h1>
+                    <p>Asignación de citas, control de agenda y confirmación automática por email</p>
                 </div>
-                <button type="button" id="btn-abrir-modal-nuevo" class="btn-search" style="background-color: #0ea5e9; padding: 12px 22px; font-size: 14px; cursor: pointer; border: none; border-radius: 8px; color: white; font-weight: 600;">
+                <button type="button" id="btn-abrir-modal-nuevo" class="btn btn-primary">
                     ➕ Agendar Nuevo Turno
                 </button>
             </div>
 
             {% if messages %}
-                <div style="margin-top: 15px;">
+                <div style="margin-bottom: 20px;">
                     {% for message in messages %}
-                        <div class="alert-box" style="background-color: #ecfdf5; border: 1px solid #a7f3d0; color: #065f46; padding: 12px 16px; border-radius: 8px; margin-bottom: 10px;">
+                        <div class="alert alert-success">
                             {{ message }}
                         </div>
                     {% endfor %}
@@ -296,12 +67,12 @@
                 <!-- Columna Derecha: Métricas y Próximos Turnos -->
                 <div class="sidebar-turnos">
                     <div class="stats-grid">
-                        <div class="stat-box" style="border-left: 4px solid #f59e0b;">
-                            <span class="stat-number" style="color: #f59e0b;">{{ total_pendientes }}</span>
+                        <div class="stat-box" style="border-left: 4px solid var(--warning);">
+                            <span class="stat-number" style="color: var(--warning);">{{ total_pendientes }}</span>
                             <span class="stat-label">Pendientes</span>
                         </div>
-                        <div class="stat-box" style="border-left: 4px solid #0ea5e9;">
-                            <span class="stat-number" style="color: #0ea5e9;">{{ total_confirmados }}</span>
+                        <div class="stat-box" style="border-left: 4px solid var(--primary);">
+                            <span class="stat-number" style="color: var(--primary);">{{ total_confirmados }}</span>
                             <span class="stat-label">Confirmados</span>
                         </div>
                     </div>
@@ -309,10 +80,10 @@
                     <div class="proximos-card">
                         <h3>📅 Próximas Citas</h3>
                         {% for t in ultimos_turnos %}
-                            <div class="item-proximo" id="item-turno-{{ t.id }}" style="display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #f1f5f9;">
+                            <div class="item-proximo" id="item-turno-{{ t.id }}">
                                 <div>
-                                    <strong style="font-size: 14px; color: #1e293b;">🐾 {{ t.mascota.nombre }}</strong>
-                                    <span style="display: block; font-size: 12px; color: #64748b;">
+                                    <strong style="font-size: 14px; color: var(--text-main);">🐾 {{ t.mascota.nombre }}</strong>
+                                    <span style="display: block; font-size: 12px; color: var(--text-muted);">
                                         {{ t.fecha_hora|date:"d/m/Y H:i" }} hs ({{ t.mascota.dueño.apellido }})
                                     </span>
                                 </div>
@@ -325,12 +96,12 @@
                                             🚀 Check-in
                                         </button>
                                     {% elif t.estado == 'ATEN' %}
-                                        <span style="font-size: 10px; color: #059669; font-weight: 600;">✓ En Espera</span>
+                                        <span style="font-size: 10px; color: var(--success); font-weight: 600;">✓ En Espera</span>
                                     {% endif %}
                                 </div>
                             </div>
                         {% empty %}
-                            <p style="color: #94a3b8; font-size: 13px; text-align: center; margin: 20px 0;">
+                            <p style="color: var(--text-muted); font-size: 13px; text-align: center; margin: 20px 0;">
                                 No hay turnos agendados recientemente.
                             </p>
                         {% endfor %}
@@ -355,7 +126,7 @@
                     ✉️ <strong>Aviso:</strong> Al registrar el turno, el sistema enviará automáticamente un correo con los detalles al dueño.
                 </div>
 
-                <div id="modal-form-errors" style="display:none; background-color: #fee2e2; color: #991b1b; padding: 10px; border-radius: 6px; margin-bottom: 15px; font-size: 13px;"></div>
+                <div id="modal-form-errors" class="alert alert-danger" style="display:none;"></div>
 
                 <div class="form-group">
                     <label for="id_mascota">Paciente (Mascota):</label>
@@ -382,9 +153,9 @@
                     {{ form.observaciones }}
                 </div>
 
-                <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 25px;">
-                    <button type="button" class="btn-secondary" onclick="cerrarModalNuevo()">Cancelar</button>
-                    <button type="submit" id="btn-guardar-turno" class="btn-primary" style="background-color: #0ea5e9;">
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="cerrarModalNuevo()">Cancelar</button>
+                    <button type="submit" id="btn-guardar-turno" class="btn btn-primary">
                         Confirmar y Enviar Email
                     </button>
                 </div>
@@ -400,7 +171,7 @@
                 <button type="button" class="modal-close" onclick="cerrarModalDetalle()">&times;</button>
             </div>
 
-            <div id="detalle-info" style="font-size: 14px; line-height: 1.7; color: #334155;">
+            <div id="detalle-info" style="font-size: 14px; line-height: 1.7; color: var(--text-secondary);">
                 <p><strong>🐾 Paciente:</strong> <span id="det-paciente"></span> (<span id="det-especie"></span>)</p>
                 <p><strong>👤 Dueño / Tutor:</strong> <span id="det-dueno"></span></p>
                 <p><strong>📞 Contacto:</strong> <span id="det-telefono"></span> | ✉️ <span id="det-email"></span></p>
@@ -411,23 +182,23 @@
                 <p><strong>Correo enviado:</strong> <span id="det-email-estado"></span></p>
             </div>
 
-            <div style="display: flex; gap: 10px; justify-content: flex-end; align-items: center; margin-top: 25px; border-top: 1px solid #f1f5f9; padding-top: 15px; flex-wrap: wrap;">
+            <div class="modal-footer" style="flex-wrap: wrap;">
                 <form id="form-ingreso-turno" method="post" style="margin:0;">
                     {% csrf_token %}
-                    <button type="submit" id="btn-ingresar-consultorio" class="btn-primary" style="background-color: #10b981; border:none; padding: 9px 18px; font-size: 13px; cursor: pointer; color: white; font-weight: 600; border-radius: 6px; display: inline-flex; align-items: center; gap: 6px;">
+                    <button type="submit" id="btn-ingresar-consultorio" class="btn btn-success">
                         🚀 Ingresar a Sala de Espera
                     </button>
                 </form>
-                <div id="badge-ya-ingresado" style="display:none; color: #065f46; background-color: #d1fae5; font-size: 13px; font-weight: 600; padding: 7px 14px; border-radius: 6px;">
+                <div id="badge-ya-ingresado" class="badge badge-completada" style="display:none; padding: 7px 14px;">
                     ✅ Ingresado a Sala de Espera
                 </div>
                 <form id="form-cancelar-turno" method="post" style="margin:0;">
                     {% csrf_token %}
-                    <button type="submit" id="btn-cancelar-turno" class="btn-logout" style="background-color: #ef4444; border:none; padding: 9px 15px; font-size: 13px; cursor: pointer; border-radius: 6px;" onclick="return confirm('¿Seguro que deseas cancelar este turno?');">
+                    <button type="submit" id="btn-cancelar-turno" class="btn btn-danger" onclick="return confirm('¿Seguro que deseas cancelar este turno?');">
                         ❌ Cancelar Turno
                     </button>
                 </form>
-                <button type="button" class="btn-secondary" onclick="cerrarModalDetalle()">Cerrar</button>
+                <button type="button" class="btn btn-secondary" onclick="cerrarModalDetalle()">Cerrar</button>
             </div>
         </div>
     </div>

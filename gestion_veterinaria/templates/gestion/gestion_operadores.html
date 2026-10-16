@@ -3,109 +3,110 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestión de Personal - Administrador</title>
-    <link rel="stylesheet" href="{% static 'gestion/css/estilos.css' %}?v=10">
+    <link rel="stylesheet" href="{% static 'gestion/css/estilos.css' %}?v=12">
 </head>
 <body>
     <div class="panel-container">
         <header class="panel-header">
             <div class="user-info">
                 <span>Médico: <strong>{{ user.username }}</strong></span>
-                <span class="badge-permiso" style="background-color: #fef3c7; color: #b45309;">Administrador</span>
+                <span class="badge-permiso badge-admin">Administrador</span>
             </div>
             <a href="{% url 'menu_administrador' %}" class="btn-clear btn-menu">Volver al Panel</a>
         </header>
 
         <main class="menu-content menu-admin-section">
-            <div class="menu-welcome" style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #e2e8f0; padding-bottom: 15px;">
+            <div class="menu-header-bar">
                 <div>
-                    <h1 style="margin: 0;">Personal de Recepción</h1>
-                    <p style="margin: 5px 0 0 0;">Altas, bajas y control de accesos al sistema</p>
+                    <h1>Personal de Recepción</h1>
+                    <p>Altas, bajas y control de accesos al sistema</p>
                 </div>
-                <a href="{% url 'alta_operador' %}" class="btn-search" style="background-color: #10b981; text-decoration: none; padding: 12px 20px;">
+                <a href="{% url 'alta_operador' %}" class="btn btn-success">
                     ➕ Registrar Nuevo Operador
                 </a>
             </div>
 
             {% if messages %}
-                <div style="margin-top: 20px;">
+                <div style="margin-bottom: 20px;">
                     {% for message in messages %}
                         {% if message.tags == 'error' %}
-                            <div style="background-color: #fee2e2; border: 1px solid #fca5a5; color: #991b1b; padding: 12px 16px; border-radius: 8px; font-size: 14px; margin-bottom: 10px;">
-                                {{ message }}
-                            </div>
+                            <div class="alert alert-danger">{{ message }}</div>
                         {% elif message.tags == 'warning' %}
-                            <div style="background-color: #fef3c7; border: 1px solid #fde68a; color: #92400e; padding: 12px 16px; border-radius: 8px; font-size: 14px; margin-bottom: 10px;">
-                                {{ message }}
-                            </div>
+                            <div class="alert alert-warning">{{ message }}</div>
                         {% else %}
-                            <div style="background-color: #d1fae5; border: 1px solid #a7f3d0; color: #065f46; padding: 12px 16px; border-radius: 8px; font-size: 14px; margin-bottom: 10px;">
-                                {{ message }}
-                            </div>
+                            <div class="alert alert-success">{{ message }}</div>
                         {% endif %}
                     {% endfor %}
                 </div>
             {% endif %}
 
-            <div class="results-container" style="margin-top: 25px;">
-                <table class="custom-table">
-                    <thead>
-                        <tr>
-                            <th>Usuario</th>
-                            <th>Nombre Completo</th>
-                            <th>Email</th>
-                            <th style="text-align: center;">Estado</th>
-                            <th style="text-align: center; min-width: 260px;">Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for perfil in operadores %}
-                        <tr {% if not perfil.user.is_active %}style="background-color: #f8fafc; opacity: 0.7;"{% endif %}>
-                            <td><strong>{{ perfil.user.username }}</strong></td>
-                            <td>{{ perfil.user.first_name }} {{ perfil.user.last_name }}</td>
-                            <td>{{ perfil.user.email }}</td>
-                            <td style="text-align: center;">
-                                {% if perfil.user.is_active %}
-                                    <span class="badge-exists" style="background-color: #d1fae5; color: #065f46;">Activo</span>
-                                {% else %}
-                                    <span class="badge-logout" style="background-color: #fee2e2; color: #991b1b; padding: 3px 8px; border-radius: 4px; font-size: 12px;">Inactivo (De Baja)</span>
-                                {% endif %}
-                            </td>
-                            <td style="text-align: center; white-space: nowrap;">
-                                <div style="display: inline-flex; flex-direction: row; flex-wrap: nowrap; gap: 8px; justify-content: center; align-items: center;">
-                                    {% if perfil.user.email %}
-                                    <form action="{% url 'reenviar_confirmacion_operador' perfil.user.id %}" method="post" style="margin: 0; display: inline-flex;" onsubmit="return confirm('¿Reenviar correo con enlace para crear/cambiar contraseña a {{ perfil.user.email }}?');">
-                                        {% csrf_token %}
-                                        <button type="submit" class="btn-search" style="background-color: #0ea5e9; border: none; padding: 7px 12px; font-size: 13px; cursor: pointer; border-radius: 6px; white-space: nowrap;" title="Reenviar enlace por correo electrónico">
-                                            ✉️ Reenviar Email
-                                        </button>
-                                    </form>
+            <div class="results-container">
+                <div class="table-responsive">
+                    <table class="custom-table">
+                        <thead>
+                            <tr>
+                                <th>Usuario</th>
+                                <th>Nombre Completo</th>
+                                <th>Email</th>
+                                <th style="text-align: center;">Estado</th>
+                                <th style="text-align: center; min-width: 240px;">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for perfil in operadores %}
+                            <tr {% if not perfil.user.is_active %}style="background-color: var(--bg-subtle); opacity: 0.75;"{% endif %}>
+                                <td><strong>{{ perfil.user.username }}</strong></td>
+                                <td>{{ perfil.user.first_name }} {{ perfil.user.last_name }}</td>
+                                <td>{{ perfil.user.email }}</td>
+                                <td style="text-align: center;">
+                                    {% if perfil.user.is_active %}
+                                        <span class="badge badge-completada">Activo</span>
+                                    {% else %}
+                                        <span class="badge badge-cancelada">Inactivo (De Baja)</span>
                                     {% endif %}
-
-                                    <form action="{% url 'cambiar_estado_operador' perfil.user.id %}" method="post" style="margin: 0; display: inline-flex;">
-                                        {% csrf_token %}
-                                        {% if perfil.user.is_active %}
-                                            <button type="submit" class="btn-logout" style="background-color: #ef4444; border: none; padding: 7px 12px; font-size: 13px; cursor: pointer; border-radius: 6px; white-space: nowrap;">
-                                                🚫 Dar de Baja
+                                </td>
+                                <td style="text-align: center;">
+                                    <div style="display: inline-flex; gap: 8px; justify-content: center; align-items: center; flex-wrap: wrap;">
+                                        {% if perfil.user.email %}
+                                        <form action="{% url 'reenviar_confirmacion_operador' perfil.user.id %}" method="post" style="margin: 0; display: inline-flex;" onsubmit="return confirm('¿Reenviar correo con enlace para crear/cambiar contraseña a {{ perfil.user.email }}?');">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-sm btn-primary" title="Reenviar enlace por correo electrónico">
+                                                ✉️ Reenviar Email
                                             </button>
-                                        {% else %}
-                                            <button type="submit" class="btn-search" style="background-color: #10b981; border: none; padding: 7px 12px; font-size: 13px; cursor: pointer; border-radius: 6px; white-space: nowrap;">
-                                                🔄 Reactivar
-                                            </button>
+                                        </form>
                                         {% endif %}
-                                    </form>
-                                </div>
-                            </td>
-                        </tr>
-                        {% empty %}
-                        <tr>
-                            <td colspan="5" style="text-align: center; color: #64748b; padding: 20px;">
-                                No hay operadores registrados en el sistema todavía.
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+
+                                        <form action="{% url 'cambiar_estado_operador' perfil.user.id %}" method="post" style="margin: 0; display: inline-flex;">
+                                            {% csrf_token %}
+                                            {% if perfil.user.is_active %}
+                                                <button type="submit" class="btn btn-sm btn-danger">
+                                                    🚫 Dar de Baja
+                                                </button>
+                                            {% else %}
+                                                <button type="submit" class="btn btn-sm btn-success">
+                                                    🔄 Reactivar
+                                                </button>
+                                            {% endif %}
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="5" style="text-align: center; color: var(--text-muted); padding: 25px;">
+                                    No hay operadores registrados en el sistema todavía.
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div style="text-align: center; margin-top: 25px;">
+                <a href="{% url 'menu_administrador' %}" class="btn btn-secondary" style="min-width: 180px;">Volver al Panel</a>
             </div>
         </main>
     </div>

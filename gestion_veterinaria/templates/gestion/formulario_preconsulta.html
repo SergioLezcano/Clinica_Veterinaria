@@ -3,17 +3,18 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Preconsulta - Recepción</title>
-    <link rel="stylesheet" href="{% static 'gestion/css/estilos.css' %}?v=10">
+    <link rel="stylesheet" href="{% static 'gestion/css/estilos.css' %}?v=12">
 </head>
 <body>
     <div class="panel-container">
         <header class="panel-header">
             <div class="user-info">
                 <span>Operador: <strong>{{ user.username }}</strong></span>
-                <span class="badge-permiso">Inicio de Atención</span>
+                <span class="badge-permiso badge-operador">Inicio de Atención</span>
             </div>
-            <form action="{% url 'logout' %}" method="post">{% csrf_token %}<button type="submit" class="btn-logout">Cerrar Sesión</button></form>
+            <a href="{% url 'menu_operador' %}" class="btn-clear btn-menu">Volver al Menú</a>
         </header>
 
         <main class="form-wrapper">
@@ -35,8 +36,8 @@
                         {{ form.as_p }}
                     </div>
                     <div class="form-actions">
-                        <button type="submit" class="btn-primary" style="background-color: #0ea5e9;">Enviar a Consultorio</button>
-                        <a href="{% url 'menu_operador' %}" class="btn-secondary">Cancelar</a>
+                        <button type="submit" class="btn btn-primary" style="flex: 2;">Enviar a Consultorio</button>
+                        <a href="{% url 'menu_operador' %}" class="btn btn-secondary">Cancelar</a>
                     </div>
                 </form>
             </div>

@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Iniciar Sesión - Veterinaria</title>
-    <link rel="stylesheet" href="{% static 'gestion/css/estilos.css' %}">
+    <link rel="stylesheet" href="{% static 'gestion/css/estilos.css' %}?v=12">
 </head>
 <body>
 
@@ -13,7 +13,7 @@
         <div class="login-card">
             
             <div class="login-header">
-                <h2>Veterinaria</h2>
+                <h2>🐾 Clínica Veterinaria</h2>
                 <p>Iniciá sesión para acceder al sistema</p>
             </div>
 
@@ -22,7 +22,7 @@
                 
                 {% if messages %}
                     {% for message in messages %}
-                        <div style="background-color: #d1fae5; border: 1px solid #a7f3d0; color: #065f46; padding: 12px 14px; border-radius: 8px; font-size: 14px; margin-bottom: 20px; text-align: center; line-height: 1.4;">
+                        <div class="alert alert-success" style="justify-content: center; text-align: center;">
                             {{ message }}
                         </div>
                     {% endfor %}

@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nueva Consulta Médica - Veterinaria</title>
-    <link rel="stylesheet" href="{% static 'gestion/css/estilos.css' %}?v=10">
+    <link rel="stylesheet" href="{% static 'gestion/css/estilos.css' %}?v=12">
 </head>
 <body>
 
@@ -13,12 +13,9 @@
         <header class="panel-header">
             <div class="user-info">
                 <span>Operador: <strong>{{ user.username }}</strong></span>
-                <span class="badge-permiso">Módulo de Consultas</span>
+                <span class="badge-permiso badge-operador">Módulo de Consultas</span>
             </div>
-            <form action="{% url 'logout' %}" method="post">
-                {% csrf_token %}
-                <button type="submit" class="btn-logout">Cerrar Sesión</button>
-            </form>
+            <a href="{% url 'menu_operador' %}" class="btn-clear btn-menu">Volver al Menú</a>
         </header>
 
         <main class="form-wrapper">
@@ -32,7 +29,7 @@
                     {% csrf_token %}
                     
                     {% if form.errors %}
-                        <div class="error-box">
+                        <div class="alert alert-danger">
                             Por favor, corregí los errores en los campos señalados.
                         </div>
                     {% endif %}
@@ -42,8 +39,8 @@
                     </div>
 
                     <div class="form-actions">
-                        <button type="submit" class="btn-primary">Guardar Historial</button>
-                        <a href="{% url 'redireccion_rol' %}" class="btn-secondary">Volver al Inicio</a>
+                        <button type="submit" class="btn btn-primary" style="flex: 2;">Guardar Historial</button>
+                        <a href="{% url 'menu_operador' %}" class="btn btn-secondary">Cancelar</a>
                     </div>
                 </form>
             </div>

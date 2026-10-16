@@ -3,15 +3,16 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Panel Médico - Veterinaria</title>
-    <link rel="stylesheet" href="{% static 'gestion/css/estilos.css' %}?v=10">
+    <link rel="stylesheet" href="{% static 'gestion/css/estilos.css' %}?v=12">
 </head>
 <body>
     <div class="panel-container">
         <header class="panel-header">
             <div class="user-info">
                 <span>Médico: <strong>{{ user.username }}</strong></span>
-                <span class="badge-permiso" style="background-color: #fef3c7; color: #b45309;">Administrador</span>
+                <span class="badge-permiso badge-admin">Administrador</span>
             </div>
             <form action="{% url 'logout' %}" method="post">
                 {% csrf_token %}
@@ -27,40 +28,40 @@
 
             <div class="menu-grid">
                 
-                <div class="menu-card alert-card" style="border-color: #fef3c7; background-color: #fffbeb;">
+                <div class="menu-card alert-card">
                     <h3>🩺 1. Sala de Espera Virtual</h3>
                     <p>Revisar la lista de pacientes derivados por recepción. Desde aquí se realiza el pesaje, toma de temperatura y diagnóstico.</p>
-                    <a href="{% url 'consultas_pendientes' %}" class="btn-card" style="background-color: #d97706; color: white;">Ver Pacientes en Espera</a>
+                    <a href="{% url 'consultas_pendientes' %}" class="btn-card">Ver Pacientes en Espera</a>
                 </div>
                 
                 <div class="menu-card">
                     <h3>📂 2. Historias Clínicas</h3>
                     <p>Buscar pacientes registrados para auditar, revisar consultas pasadas, tratamientos anteriores o evoluciones crónicas.</p>
-                    <a href="{% url 'historial_clinico' %}" class="btn-card" style="background-color: #3b82f6; color: white;">Buscar Fichas Médicas</a>
+                    <a href="{% url 'historial_clinico' %}" class="btn-card">Buscar Fichas Médicas</a>
                 </div>
 
                 <div class="menu-card">
                     <h3>📊 3. Reportes Estadísticos</h3>
                     <p>Visualizar métricas generales del consultorio, volumen de atenciones diarias y auditoría del sistema.</p>
-                    <a href="{% url 'reportes_estadisticos' %}" class="btn-card" style="background-color: #3b82f6; color: white;">Ver Reportes</a>
+                    <a href="{% url 'reportes_estadisticos' %}" class="btn-card">Ver Reportes</a>
                 </div>
 
-                <div class="menu-card" style="border-color: #e2e8f0;">
-                    <h3>👥 Gestión de Operadores</h3>
+                <div class="menu-card">
+                    <h3>👥 4. Gestión de Operadores</h3>
                     <p>Administrar el personal de recepción, dar de alta nuevos usuarios o suspender accesos de forma inmediata.</p>
-                    <a href="{% url 'gestion_operadores' %}" class="btn-card" style="background-color: #3b82f6; color: white;">Administrar Personal</a>
+                    <a href="{% url 'gestion_operadores' %}" class="btn-card">Administrar Personal</a>
                 </div>
 
-                <div class="menu-card" style="border-left: 4px solid #0ea5e9;">
-                    <h3>📅 Agenda de Turnos</h3>
+                <div class="menu-card primary-card">
+                    <h3>📅 5. Agenda de Turnos</h3>
                     <p>Consultar citas programadas para el consultorio, pacientes citados y calendario médico en tiempo real.</p>
-                    <a href="{% url 'calendario_turnos' %}" class="btn-card" style="background-color: #0ea5e9; color: white;">Ver Calendario</a>
+                    <a href="{% url 'calendario_turnos' %}" class="btn-card">Ver Calendario</a>
                 </div>
 
-                <div class="menu-card" style="border-left: 4px solid #10b981;">
-                    <h3>📦 Farmacia y Catálogo</h3>
+                <div class="menu-card" style="border-left: 4px solid var(--success);">
+                    <h3>📦 6. Farmacia y Catálogo</h3>
                     <p>Carga de productos y medicamentos, actualización de precios, alertas de stock bajo y control de ventas.</p>
-                    <a href="{% url 'catalogo_productos' %}" class="btn-card" style="background-color: #10b981; color: white;">Ver Catálogo y Stock</a>
+                    <a href="{% url 'catalogo_productos' %}" class="btn-card" style="background-color: var(--success); color: white;">Ver Catálogo y Stock</a>
                 </div>
 
             </div>

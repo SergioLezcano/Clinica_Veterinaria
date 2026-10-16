@@ -3,65 +3,76 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pacientes en Espera - Veterinario</title>
-    <link rel="stylesheet" href="{% static 'gestion/css/estilos.css' %}?v=10">
+    <link rel="stylesheet" href="{% static 'gestion/css/estilos.css' %}?v=12">
 </head>
 <body>
     <div class="panel-container">
         <header class="panel-header">
             <div class="user-info">
                 <span>Médico: <strong>{{ user.username }}</strong></span>
-                <span class="badge-permiso" style="background-color: #fef3c7; color: #b45309;">Sala de Espera</span>
+                <span class="badge-permiso badge-admin">Sala de Espera</span>
             </div>
-            <form action="{% url 'logout' %}" method="post">{% csrf_token %}<button type="submit" class="btn-logout">Cerrar Sesión</button></form>
+            <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                <a href="{% url 'menu_administrador' %}" class="btn-clear btn-menu">Volver al Panel</a>
+                <form action="{% url 'logout' %}" method="post" style="margin:0;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn-logout">Cerrar Sesión</button>
+                </form>
+            </div>
         </header>
 
         <main class="menu-content">
             <div class="menu-welcome">
                 <h1>Pacientes Pendientes</h1>
-                <p>Lista de mascotas listas para diagnóstico</p>
+                <p>Lista de mascotas listas para diagnóstico y atención médica</p>
             </div>
 
             <div class="results-container">
                 {% if pendientes %}
-                    <table class="custom-table">
-                        <thead>
-                            <tr>
-                                <th>Fecha/Hora</th>
-                                <th>Mascota (Edad)</th>
-                                <th>Especie/Raza</th>
-                                <th>Motivo</th>
-                                <th style="text-align: center;">Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for consulta in pendientes %}
-                            <tr>
-                                <td>{{ consulta.fecha_consulta|date:"d/m/Y H:i" }}</td>
-                                <td>
-                                    <strong>{{ consulta.mascota.nombre }}</strong>
-                                    <span style="color: #64748b; font-size: 13px;">({{ consulta.mascota.edad }})</span>
-                                </td>
-                                <td><strong>{{ consulta.mascota.especie }} ({{ consulta.mascota.raza }})</strong></td>
-                                <td>{{ consulta.motivo|truncatechars:30 }}</td>
-                                <td style="display: flex; gap: 10px; justify-content: center; align-items: center;">
-                                    <a href="{% url 'cerrar_consulta' consulta.id %}" class="btn-search" style="text-decoration:none; background-color:#d97706; padding: 6px 12px; font-size: 13px;">
-                                        🩺 Atender
-                                    </a>
-                                    
-                                    <form action="{% url 'cancelar_consulta' consulta.id %}" method="post" style="margin: 0;" onsubmit="return confirm('¿Estás seguro de que querés cancelar esta preconsulta?');">
-                                        {% csrf_token %}
-                                        <button type="submit" class="btn-logout" style="background-color: #f60c0c; padding: 6px 12px; font-size: 13px; border: none; margin: 0; cursor: pointer; border-radius: 8px;">
-                                            ❌ Cancelar
-                                        </button>
-                                    </form>
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
+                    <div class="table-responsive">
+                        <table class="custom-table">
+                            <thead>
+                                <tr>
+                                    <th>Fecha/Hora</th>
+                                    <th>Mascota (Edad)</th>
+                                    <th>Especie/Raza</th>
+                                    <th>Motivo</th>
+                                    <th style="text-align: center; min-width: 180px;">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for consulta in pendientes %}
+                                <tr>
+                                    <td>{{ consulta.fecha_consulta|date:"d/m/Y H:i" }}</td>
+                                    <td>
+                                        <strong>{{ consulta.mascota.nombre }}</strong>
+                                        <span style="color: var(--text-muted); font-size: 13px;">({{ consulta.mascota.edad }})</span>
+                                    </td>
+                                    <td><strong>{{ consulta.mascota.especie }} ({{ consulta.mascota.raza }})</strong></td>
+                                    <td>{{ consulta.motivo|truncatechars:30 }}</td>
+                                    <td style="text-align: center;">
+                                        <div style="display: inline-flex; gap: 8px; justify-content: center; align-items: center; flex-wrap: wrap;">
+                                            <a href="{% url 'cerrar_consulta' consulta.id %}" class="btn btn-sm btn-warning">
+                                                🩺 Atender
+                                            </a>
+                                            
+                                            <form action="{% url 'cancelar_consulta' consulta.id %}" method="post" style="margin: 0;" onsubmit="return confirm('¿Estás seguro de que querés cancelar esta preconsulta?');">
+                                                {% csrf_token %}
+                                                <button type="submit" class="btn btn-sm btn-danger">
+                                                    ❌ Cancelar
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
                 {% else %}
-                    <div class="no-results" style="background-color: #f8fafc; color: #64748b; border-color: #e2e8f0;">
+                    <div class="no-results">
                         ☕ No hay pacientes en espera en este momento.
                     </div>
                 {% endif %}
@@ -69,57 +80,59 @@
 
             {% if borradores %}
             <div class="results-container" style="margin-top: 30px;">
-                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px;">
+                <div class="menu-header-bar" style="border-bottom: 1px solid var(--border-color); padding-bottom: 12px; margin-bottom: 15px;">
                     <div>
-                        <h2 style="font-size: 18px; color: #1e293b; margin: 0; display: flex; align-items: center; gap: 8px;">
+                        <h2 style="font-size: 18px; color: var(--text-main); margin: 0; display: flex; align-items: center; gap: 8px;">
                             📝 Pre-facturas en Borrador / En Curso
-                            <span style="font-size: 12px; background: #e0f2fe; color: #0369a1; padding: 2px 10px; border-radius: 12px; font-weight: 600;">
-                                {{ borradores|length }}
-                            </span>
+                            <span class="badge badge-info">{{ borradores|length }}</span>
                         </h2>
-                        <p style="margin: 4px 0 0 0; font-size: 13px; color: #64748b;">
+                        <p style="margin: 4px 0 0 0; font-size: 13px; color: var(--text-muted);">
                             Consultas que ya cuentan con diagnóstico pero cuya pre-factura no ha sido enviada a caja todavía.
                         </p>
                     </div>
                 </div>
 
-                <table class="custom-table">
-                    <thead>
-                        <tr>
-                            <th>Fecha/Hora</th>
-                            <th>Mascota (Edad)</th>
-                            <th>Tutor / Dueño</th>
-                            <th>Diagnóstico</th>
-                            <th style="text-align: center;">Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for consulta in borradores %}
-                        <tr>
-                            <td>{{ consulta.fecha_consulta|date:"d/m/Y H:i" }}</td>
-                            <td>
-                                <strong>{{ consulta.mascota.nombre }}</strong>
-                                <span style="color: #64748b; font-size: 13px;">({{ consulta.mascota.edad }})</span>
-                            </td>
-                            <td>{{ consulta.mascota.dueño.apellido }}, {{ consulta.mascota.dueño.nombre }}</td>
-                            <td>{{ consulta.diagnostico|default:"Sin diagnóstico especificado"|truncatechars:35 }}</td>
-                            <td style="display: flex; gap: 8px; justify-content: center; align-items: center;">
-                                <a href="{% url 'cargar_conceptos_consulta' consulta.id %}" class="btn-search" style="text-decoration: none; background-color: #10b981; padding: 6px 12px; font-size: 13px;">
-                                    💰 Continuar Pre-factura
-                                </a>
-                                <a href="{% url 'cerrar_consulta' consulta.id %}" class="btn-search" style="text-decoration: none; background-color: #0ea5e9; padding: 6px 12px; font-size: 13px;">
-                                    🩺 Editar Consulta
-                                </a>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+                <div class="table-responsive">
+                    <table class="custom-table">
+                        <thead>
+                            <tr>
+                                <th>Fecha/Hora</th>
+                                <th>Mascota (Edad)</th>
+                                <th>Tutor / Dueño</th>
+                                <th>Diagnóstico</th>
+                                <th style="text-align: center; min-width: 250px;">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for consulta in borradores %}
+                            <tr>
+                                <td>{{ consulta.fecha_consulta|date:"d/m/Y H:i" }}</td>
+                                <td>
+                                    <strong>{{ consulta.mascota.nombre }}</strong>
+                                    <span style="color: var(--text-muted); font-size: 13px;">({{ consulta.mascota.edad }})</span>
+                                </td>
+                                <td>{{ consulta.mascota.dueño.apellido }}, {{ consulta.mascota.dueño.nombre }}</td>
+                                <td>{{ consulta.diagnostico|default:"Sin diagnóstico especificado"|truncatechars:35 }}</td>
+                                <td style="text-align: center;">
+                                    <div style="display: inline-flex; gap: 8px; justify-content: center; align-items: center; flex-wrap: wrap;">
+                                        <a href="{% url 'cargar_conceptos_consulta' consulta.id %}" class="btn btn-sm btn-success">
+                                            💰 Continuar Pre-factura
+                                        </a>
+                                        <a href="{% url 'cerrar_consulta' consulta.id %}" class="btn btn-sm btn-primary">
+                                            🩺 Editar Consulta
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
             </div>
             {% endif %}
 
             <div style="text-align: center; margin-top: 25px;">
-                <a href="{% url 'menu_administrador' %}" class="btn-secondary" style="display:inline-block; width:200px; background-color: #10b981;">Volver al Menú</a>
+                <a href="{% url 'menu_administrador' %}" class="btn btn-secondary" style="min-width: 180px;">Volver al Panel</a>
             </div>
         </main>
     </div>

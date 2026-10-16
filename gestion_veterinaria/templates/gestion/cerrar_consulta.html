@@ -3,68 +3,69 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cierre de Consulta - Médico</title>
-    <link rel="stylesheet" href="{% static 'gestion/css/estilos.css' %}">
+    <link rel="stylesheet" href="{% static 'gestion/css/estilos.css' %}?v=12">
 </head>
 <body>
     <div class="panel-container">
         <header class="panel-header">
             <div class="user-info">
                 <span>Atendiendo a: <strong>{{ object.mascota.nombre }}</strong></span>
-                <span class="badge-permiso">Historial Clínico</span>
+                <span class="badge-permiso badge-admin">Historial Clínico</span>
             </div>
+            <a href="{% url 'consultas_pendientes' %}" class="btn-clear btn-menu">Volver a Sala de Espera</a>
         </header>
 
         <main class="form-wrapper">
-            <div class="form-card" style="max-width: 800px;">
-                <div class="card-header" style="background: #f1f5f9; border-radius: 8px; padding: 20px;">
-                    <h3 style="font-size: 16px; color: #0ea5e9; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.5px;">
+            <div class="form-card form-card-wide">
+                <div class="card-header" style="background: var(--bg-subtle); border-radius: var(--radius-md); padding: 20px;">
+                    <h3 style="font-size: 16px; color: var(--primary); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;">
                         🐾 Paciente: {{ object.mascota.nombre }}
                     </h3>
-                    <p style="font-size: 14px; color: #475569; margin-bottom: 15px; line-height: 1.6;">
+                    <p style="font-size: 14px; color: var(--text-secondary); margin-bottom: 12px; line-height: 1.6;">
                         <strong>Especie/Raza:</strong> {{ object.mascota.get_sexo_display }} - {{ object.mascota.especie }} ({{ object.mascota.raza }}) <br>
                         <strong>Edad actual:</strong> {{ object.mascota.edad }}
                     </p>
-                    <hr style="border: 0; border-top: 1px solid #cbd5e1; margin: 10px 0;">
-                    <h3 style="font-size: 13px; color: #64748b; margin-bottom: 5px;">MOTIVO DE VISITA:</h3>
-                    <p style="font-size: 16px; color: #1e293b; font-weight: 500; margin: 0;">{{ object.motivo }}</p>
+                    <hr style="border: 0; border-top: 1px solid var(--border-dark); margin: 10px 0;">
+                    <h4 style="font-size: 12px; color: var(--text-muted); margin-bottom: 4px; text-transform: uppercase;">MOTIVO DE VISITA:</h4>
+                    <p style="font-size: 15px; color: var(--text-main); font-weight: 600; margin: 0;">{{ object.motivo }}</p>
                 </div>
 
                 {% if tiene_borrador %}
-                <div style="background-color: #eff6ff; border: 1px solid #bfdbfe; color: #1e40af; padding: 14px 18px; border-radius: 8px; margin: 20px 0; display: flex; justify-content: space-between; align-items: center; gap: 14px; flex-wrap: wrap;">
+                <div class="alert alert-info" style="justify-content: space-between; flex-wrap: wrap; margin-top: 20px;">
                     <div style="display: flex; align-items: center; gap: 10px;">
-                        <span style="font-size: 22px;">📝</span>
+                        <span style="font-size: 20px;">📝</span>
                         <div style="font-size: 14px; line-height: 1.4;">
                             <strong>Pre-factura en curso:</strong>
-                            Esta consulta ya cuenta con un borrador de pre-facturación. Podés modificar el diagnóstico u observaciones y continuar, o ir directamente a los conceptos.
+                            Esta consulta ya cuenta con un borrador de pre-facturación. Podés modificar el diagnóstico y continuar.
                         </div>
                     </div>
-                    <a href="{% url 'cargar_conceptos_consulta' object.id %}" class="btn-primary" style="background-color: #0284c7; color: white; text-decoration: none; padding: 8px 14px; font-size: 13px; border-radius: 6px; white-space: nowrap;">
+                    <a href="{% url 'cargar_conceptos_consulta' object.id %}" class="btn btn-sm btn-primary">
                         Ir a Pre-facturación ➡️
                     </a>
                 </div>
                 {% endif %}
 
-                <form method="post" class="custom-form">
+                <form method="post" class="custom-form" style="margin-top: 20px;">
                     {% csrf_token %}
                     <div class="django-form-fields">
-                        <label for="">PESO</label>
+                        <label>PESO (KG)</label>
                         {{ form.peso }}
-                        <label for="">TEMPERATURA</label>
-                        {{ form.temperatura}}
+                        <label>TEMPERATURA (°C)</label>
+                        {{ form.temperatura }}
                         <label>DIAGNÓSTICO MÉDICO</label>
                         {{ form.diagnostico }}
-                        <br>
                         <label>TRATAMIENTO INDICADO</label>
                         {{ form.tratamiento }}
                         <label>OBSERVACIONES</label>
                         {{ form.observaciones }}
                     </div>
-                    <div class="form-actions" style="display: flex; gap: 12px; margin-top: 20px;">
-                        <button type="submit" class="btn-primary" style="flex: 2; background-color: #0ea5e9; padding: 11px;">
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary" style="flex: 2;">
                             🩺 Guardar y Continuar a Pre-facturación
                         </button>
-                        <a href="{% url 'consultas_pendientes' %}" class="btn-secondary" style="flex: 1; text-align: center; text-decoration: none; line-height: 2.4; padding: 0 15px;">
+                        <a href="{% url 'consultas_pendientes' %}" class="btn btn-secondary">
                             Volver a Sala de Espera
                         </a>
                     </div>
