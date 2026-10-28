@@ -115,6 +115,8 @@ clinica_veterinaria/
     └── turno_service.py      # Eventos FullCalendar, check-in 1-clic y emails HTML
 ```
 
+> 📖 **Documento Completo de Arquitectura:** Para una descripción técnica detallada según el **Modelo 4+1 Vistas**, diagramas de secuencia transaccionales, topología física y catálogo de patrones de diseño, consulta el documento formal: [ARQUITECTURA.md](file:///d:/TEC%20DESARROLLO%20EN%20SOFTWARE/4to%20CUATRIMESTRE/BACKEND/PROYECTO%20BACKEND/clinica_veterinaria/ARQUITECTURA.md).
+
 ---
 
 ## 🗄️ Modelo de Datos y Multi-Mascota
