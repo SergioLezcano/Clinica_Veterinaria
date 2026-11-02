@@ -1,12 +1,14 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registro de Propietario - Veterinaria</title>
+    <title>{% if object %}Editar Propietario{% else %}Registro de Propietario{% endif %} - Veterinaria</title>
     <link rel="stylesheet" href="{% static 'gestion/css/estilos.css' %}?v=12">
 </head>
+
 <body>
 
     <div class="panel-container">
@@ -15,23 +17,33 @@
                 <span>Operador: <strong>{{ user.username }}</strong></span>
                 <span class="badge-permiso badge-operador">Registro de Clientes</span>
             </div>
-            <a href="{% url 'menu_operador' %}" class="btn-clear btn-menu">Volver al Menú</a>
+            <div style="display: flex; gap: 10px;">
+                <a href="{% url 'lista_dueños' %}" class="btn-clear btn-menu">Ver Lista de Dueños</a>
+                <a href="{% url 'menu_operador' %}" class="btn-clear btn-menu">Volver al Menú</a>
+            </div>
         </header>
 
         <main class="form-wrapper">
             <div class="form-card">
                 <div class="card-header">
-                    <h2>Registrar Nuevo Dueño</h2>
-                    <p class="subtitle">Carga los datos personales del cliente para el sistema</p>
+                    <h2>{% if object %}Editar Datos del Dueño{% else %}Registrar Nuevo Dueño{% endif %}</h2>
+                    <p class="subtitle">
+                        {% if object %}
+                        Modificá el correo electrónico, teléfono o nombre de {{ object.nombre }} {{ object.apellido }}
+                        {% else %}
+                        Carga los datos personales del cliente para el sistema
+                        {% endif %}
+                    </p>
                 </div>
 
                 <form method="post" class="custom-form">
                     {% csrf_token %}
-                    
+
                     {% if form.errors %}
-                        <div class="alert alert-danger">
-                            Por favor, verificá los datos. Es posible que el correo electrónico ya se encuentre registrado.
-                        </div>
+                    <div class="alert alert-danger">
+                        Por favor, verificá los datos. Es posible que el correo electrónico ya se encuentre registrado
+                        por otro dueño.
+                    </div>
                     {% endif %}
 
                     <div class="django-form-fields">
@@ -39,8 +51,13 @@
                     </div>
 
                     <div class="form-actions">
-                        <button type="submit" class="btn btn-success" style="flex: 2;">Guardar Dueño</button>
-                        <a href="{% url 'menu_operador' %}" class="btn btn-secondary">Cancelar</a>
+                        <button type="submit" class="btn btn-success" style="flex: 2;">
+                            {% if object %}Guardar Cambios{% else %}Guardar Dueño{% endif %}
+                        </button>
+                        <a href="{% if object %}{% url 'lista_dueños' %}{% else %}{% url 'menu_operador' %}{% endif %}"
+                            class="btn btn-secondary">
+                            Cancelar
+                        </a>
                     </div>
                 </form>
             </div>
@@ -48,4 +65,5 @@
     </div>
 
 </body>
+
 </html>

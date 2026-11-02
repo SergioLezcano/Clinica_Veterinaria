@@ -1,12 +1,14 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Panel del Operador - Veterinaria</title>
     <link rel="stylesheet" href="{% static 'gestion/css/estilos.css' %}?v=12">
 </head>
+
 <body>
 
     <div class="panel-container">
@@ -29,10 +31,11 @@
 
             <div class="search-container">
                 <form method="get" action="{% url 'menu_operador' %}" class="search-form">
-                    <input type="text" name="q" placeholder="Buscar mascota para iniciar atención..." value="{{ busqueda }}" autocomplete="off">
+                    <input type="text" name="q" placeholder="Buscar mascota para iniciar atención..."
+                        value="{{ busqueda }}" autocomplete="off">
                     <button type="submit" class="btn-search">Buscar Paciente</button>
                     {% if busqueda %}
-                        <a href="{% url 'menu_operador' %}" class="btn-clear">Limpiar</a>
+                    <a href="{% url 'menu_operador' %}" class="btn-clear">Limpiar</a>
                     {% endif %}
                 </form>
             </div>
@@ -40,47 +43,66 @@
             {% if busqueda %}
             <div class="results-container">
                 <h3>Resultados de la búsqueda: "{{ busqueda }}"</h3>
-                
+
                 {% if mascotas_encontradas %}
-                    <div class="table-responsive">
-                        <table class="custom-table">
-                            <thead>
-                                <tr>
-                                    <th>Nombre Mascota</th>
-                                    <th>Especie / Raza</th>
-                                    <th>Dueño Asociado</th>
-                                    <th style="text-align: center;">Acción Administrativa</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for mascota in mascotas_encontradas %}
-                                <tr>
-                                    <td><strong>{{ mascota.nombre }}</strong></td>
-                                    <td>{{ mascota.especie }} ({{ mascota.raza }})</td>
-                                    <td>{{ mascota.dueño.nombre }} {{ mascota.dueño.apellido }}</td>
-                                    <td style="text-align: center;">
-                                        <a href="{% url 'crear_preconsulta' %}?mascota_id={{ mascota.id }}" class="btn btn-sm btn-success">
+                <div class="table-responsive">
+                    <table class="custom-table">
+                        <thead>
+                            <tr>
+                                <th>Nombre Mascota</th>
+                                <th>Especie / Raza</th>
+                                <th>Dueño Asociado</th>
+                                <th style="text-align: center;">Acción Administrativa</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for mascota in mascotas_encontradas %}
+                            <tr>
+                                <td><strong>{{ mascota.nombre }}</strong></td>
+                                <td>{{ mascota.especie }} ({{ mascota.raza }})</td>
+                                <td>
+                                    {{ mascota.dueño.nombre }} {{ mascota.dueño.apellido }}
+                                    <small style="display: block; color: var(--text-muted);">{{ mascota.dueño.email
+                                        }}</small>
+                                </td>
+                                <td style="text-align: center;">
+                                    <div
+                                        style="display: inline-flex; gap: 8px; flex-wrap: wrap; justify-content: center;">
+                                        <a href="{% url 'crear_preconsulta' %}?mascota_id={{ mascota.id }}"
+                                            class="btn btn-sm btn-success">
                                             🚀 Iniciar Atención
                                         </a>
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
+                                        <a href="{% url 'editar_dueño' mascota.dueño.id %}"
+                                            class="btn btn-sm btn-primary" title="Editar datos del dueño">
+                                            ✏️ Editar Dueño
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
                 {% else %}
-                    <div class="no-results">
-                        ❌ No se encontró ninguna mascota con ese nombre. Por favor, registrá al Dueño y al Paciente usando los botones de abajo.
-                    </div>
+                <div class="no-results">
+                    ❌ No se encontró ninguna mascota con ese nombre. Por favor, registrá al Dueño y al Paciente usando
+                    los botones de abajo.
+                </div>
                 {% endif %}
             </div>
             {% endif %}
 
             <div class="menu-grid">
                 <div class="menu-card primary-card">
-                    <h3>👥 1. Registrar Dueño</h3>
-                    <p>Cargar los datos de un nuevo propietario o cliente en la base de datos general.</p>
-                    <a href="{% url 'crear_dueño' %}" class="btn-card">Nuevo Dueño</a>
+                    <h3>👥 1. Gestión de Dueños</h3>
+                    <p>Cargar un nuevo propietario o consultar y editar los datos (como email y teléfono) de dueños
+                        registrados.</p>
+                    <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: auto;">
+                        <a href="{% url 'crear_dueño' %}" class="btn-card" style="flex: 1; text-align: center;">Nuevo
+                            Dueño</a>
+                        <a href="{% url 'lista_dueños' %}" class="btn-card" style="flex: 1; text-align: center;">Editar
+                            Dueños</a>
+                    </div>
                 </div>
 
                 <div class="menu-card primary-card">
@@ -91,7 +113,8 @@
 
                 <div class="menu-card primary-card">
                     <h3>🩺 3. Pre-consulta Manual</h3>
-                    <p>Abrir una orden de ingreso a consultorio de forma directa seleccionando la mascota manualmente.</p>
+                    <p>Abrir una orden de ingreso a consultorio de forma directa seleccionando la mascota manualmente.
+                    </p>
                     <a href="{% url 'crear_preconsulta' %}" class="btn-card">Nueva Preconsulta</a>
                 </div>
 
@@ -103,7 +126,8 @@
 
                 <div class="menu-card primary-card">
                     <h3>📅 5. Gestión de Turnos</h3>
-                    <p>Agendá citas en el calendario interactivo y enviá confirmaciones automáticas por email a los dueños.</p>
+                    <p>Agendá citas en el calendario interactivo y enviá confirmaciones automáticas por email a los
+                        dueños.</p>
                     <a href="{% url 'calendario_turnos' %}" class="btn-card">Abrir Agenda de Turnos</a>
                 </div>
             </div>
@@ -111,4 +135,5 @@
     </div>
 
 </body>
+
 </html>

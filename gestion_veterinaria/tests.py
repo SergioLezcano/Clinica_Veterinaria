@@ -7,7 +7,7 @@ from django.contrib.auth.tokens import default_token_generator
 from django.utils.http import urlsafe_base64_encode
 from django.utils.encoding import force_bytes
 
-from .models import PerfilUsuario
+from .models import PerfilUsuario, Dueño, Mascota
 from .services.usuario_service import UsuarioService
 
 
@@ -138,4 +138,86 @@ class OperadorAltaYConfirmacionEmailTests(TestCase):
         # Verificar que se envió el correo a franco@example.com
         self.assertEqual(len(mail.outbox), 1)
         self.assertEqual(mail.outbox[0].to, ['franco@example.com'])
-        self.assertIn('franco_operador', mail.outbox[0].body)
+        self.assertIn('franco_operador', email_enviado := mail.outbox[0].body)
+
+
+class GestionDuenosTests(TestCase):
+
+    def setUp(self):
+        self.operador_user = User.objects.create_user(
+            username='operador_recepcion',
+            email='operador@veterinaria.com',
+            password='operadorpassword123'
+        )
+        PerfilUsuario.objects.create(
+            user=self.operador_user,
+            rol=PerfilUsuario.Rol.OPERADOR
+        )
+        self.dueno1 = Dueño.objects.create(
+            nombre='Carlos',
+            apellido='Gomez',
+            telefono='1122334455',
+            email='carlos.viejo@example.com'
+        )
+        self.dueno2 = Dueño.objects.create(
+            nombre='Laura',
+            apellido='Martinez',
+            telefono='1199887766',
+            email='laura@example.com'
+        )
+        self.mascota = Mascota.objects.create(
+            dueño=self.dueno1,
+            nombre='Firulais',
+            especie='Perro',
+            raza='Mestizo',
+            sexo='M'
+        )
+
+    def test_listar_y_buscar_duenos(self):
+        """Verifica que se listen los dueños registrados y funcione el buscador."""
+        self.client.login(username='operador_recepcion', password='operadorpassword123')
+
+        response = self.client.get(reverse('lista_dueños'))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Gomez, Carlos')
+        self.assertContains(response, 'Martinez, Laura')
+        self.assertContains(response, 'Firulais')
+
+        # Búsqueda filtrada por email
+        response_busqueda = self.client.get(reverse('lista_dueños'), {'q': 'laura@example.com'})
+        self.assertContains(response_busqueda, 'Martinez, Laura')
+        self.assertNotContains(response_busqueda, 'Gomez, Carlos')
+
+    def test_editar_email_y_datos_dueno(self):
+        """Verifica que se pueda modificar el email y teléfono de un dueño existente."""
+        self.client.login(username='operador_recepcion', password='operadorpassword123')
+
+        url_editar = reverse('editar_dueño', kwargs={'pk': self.dueno1.id})
+        response = self.client.post(url_editar, data={
+            'nombre': 'Carlos Alberto',
+            'apellido': 'Gomez',
+            'telefono': '1155556666',
+            'email': 'carlos.nuevo@example.com'
+        })
+
+        self.assertRedirects(response, reverse('lista_dueños'))
+        self.dueno1.refresh_from_db()
+        self.assertEqual(self.dueno1.nombre, 'Carlos Alberto')
+        self.assertEqual(self.dueno1.telefono, '1155556666')
+        self.assertEqual(self.dueno1.email, 'carlos.nuevo@example.com')
+
+    def test_editar_dueno_con_email_duplicado_falla(self):
+        """Verifica que no se permita asignar el email de otro dueño ya registrado."""
+        self.client.login(username='operador_recepcion', password='operadorpassword123')
+
+        url_editar = reverse('editar_dueño', kwargs={'pk': self.dueno1.id})
+        response = self.client.post(url_editar, data={
+            'nombre': 'Carlos',
+            'apellido': 'Gomez',
+            'telefono': '1122334455',
+            'email': 'laura@example.com'  # Email perteneciente a dueno2
+        })
+
+        self.assertEqual(response.status_code, 200)
+        self.dueno1.refresh_from_db()
+        self.assertEqual(self.dueno1.email, 'carlos.viejo@example.com')

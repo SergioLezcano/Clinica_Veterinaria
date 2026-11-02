@@ -13,8 +13,10 @@ urlpatterns = [
     path('menu-operador/', views.MenuOperadorView.as_view(), name='menu_operador'),
     path('menu-administrador/', views.MenuAdministradorView.as_view(), name='menu_administrador'),
     
-    # 👥 Registro de Dueño y 🐾 Mascota (Operador)
+    # 👥 Gestión de Dueños y 🐾 Mascota (Operador)
+    path('duenos/', views.DuenoListView.as_view(), name='lista_dueños'),
     path('nuevo-dueno/', views.DuenoCreateView.as_view(), name='crear_dueño'),
+    path('duenos/editar/<int:pk>/', views.DuenoUpdateView.as_view(), name='editar_dueño'),
     path('nueva-mascota/', views.MascotaCreateView.as_view(), name='crear_mascota'),
     
     # 📥 Flujo de Ingreso y Espera (Operador manda a Sala de Espera)

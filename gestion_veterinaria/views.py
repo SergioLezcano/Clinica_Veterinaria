@@ -273,6 +273,21 @@ class MenuOperadorView(LoginRequiredMixin, ListView):
         context['busqueda'] = self.request.GET.get('q', '')
         return context
 
+class DuenoListView(LoginRequiredMixin, ListView):
+    model = Dueño
+    template_name = 'gestion/lista_dueños.html'
+    context_object_name = 'duenos'
+
+    def get_queryset(self):
+        return MascotaService.listar_dueños(
+            self.request.GET.get("q")
+        )
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['busqueda'] = self.request.GET.get('q', '')
+        return context
+
 class DuenoCreateView(LoginRequiredMixin, CreateView):
     model = Dueño
     fields = ['nombre', 'apellido', 'telefono', 'email'] 
@@ -281,6 +296,20 @@ class DuenoCreateView(LoginRequiredMixin, CreateView):
 
     def form_valid(self, form):
         MascotaService.crear_dueño(form)
+        return redirect(self.success_url)
+
+class DuenoUpdateView(LoginRequiredMixin, UpdateView):
+    model = Dueño
+    fields = ['nombre', 'apellido', 'telefono', 'email']
+    template_name = 'gestion/formulario_dueño.html'
+    success_url = reverse_lazy('lista_dueños')
+
+    def form_valid(self, form):
+        dueno = MascotaService.actualizar_dueño(form)
+        messages.success(
+            self.request,
+            f"Los datos del propietario '{dueno.nombre} {dueno.apellido}' se actualizaron correctamente."
+        )
         return redirect(self.success_url)
 
 class MascotaCreateView(LoginRequiredMixin, CreateView):
@@ -313,4 +342,3 @@ class PreConsultaCreateView(LoginRequiredMixin, CreateView):
             self.request.GET.get("mascota_id")
         )
         return redirect(self.success_url) # type: ignore
-    

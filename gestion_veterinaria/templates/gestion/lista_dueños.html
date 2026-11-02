@@ -1,0 +1,115 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Dueños - Veterinaria</title>
+    <link rel="stylesheet" href="{% static 'gestion/css/estilos.css' %}?v=12">
+</head>
+<body>
+    <div class="panel-container">
+        <header class="panel-header">
+            <div class="user-info">
+                <span>Usuario: <strong>{{ user.username }}</strong></span>
+                <span class="badge-permiso badge-operador">Gestión de Propietarios</span>
+            </div>
+            <a href="{% url 'inicio' %}" class="btn-clear btn-menu">Volver al Menú</a>
+        </header>
+
+        <main class="menu-content menu-operador-section">
+            <div class="menu-header-bar">
+                <div>
+                    <h1>Dueños Registrados</h1>
+                    <p>Consultá y actualizá los datos de contacto o correo electrónico de los propietarios</p>
+                </div>
+                <a href="{% url 'crear_dueño' %}" class="btn btn-success">
+                    ➕ Registrar Nuevo Dueño
+                </a>
+            </div>
+
+            {% if messages %}
+                <div style="margin-bottom: 20px;">
+                    {% for message in messages %}
+                        {% if message.tags == 'error' %}
+                            <div class="alert alert-danger">{{ message }}</div>
+                        {% elif message.tags == 'warning' %}
+                            <div class="alert alert-warning">{{ message }}</div>
+                        {% else %}
+                            <div class="alert alert-success">{{ message }}</div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <div class="search-container">
+                <form method="get" action="{% url 'lista_dueños' %}" class="search-form">
+                    <input type="text" name="q" placeholder="Buscar por nombre, apellido, email o teléfono..." value="{{ busqueda }}" autocomplete="off">
+                    <button type="submit" class="btn-search">Buscar Dueño</button>
+                    {% if busqueda %}
+                        <a href="{% url 'lista_dueños' %}" class="btn-clear">Limpiar</a>
+                    {% endif %}
+                </form>
+            </div>
+
+            <div class="results-container">
+                <div class="table-responsive">
+                    <table class="custom-table">
+                        <thead>
+                            <tr>
+                                <th>Apellido y Nombre</th>
+                                <th>Teléfono</th>
+                                <th>Correo Electrónico</th>
+                                <th>Mascotas Asociadas</th>
+                                <th style="text-align: center;">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for dueno in duenos %}
+                            <tr>
+                                <td><strong>{{ dueno.apellido }}, {{ dueno.nombre }}</strong></td>
+                                <td>{{ dueno.telefono }}</td>
+                                <td>{{ dueno.email }}</td>
+                                <td>
+                                    {% with mascotas=dueno.mascota_set.all %}
+                                        {% if mascotas %}
+                                            {% for m in mascotas %}
+                                                <span class="badge badge-completada" style="margin: 2px; display: inline-block;">
+                                                    🐾 {{ m.nombre }} ({{ m.especie }})
+                                                </span>
+                                            {% endfor %}
+                                        {% else %}
+                                            <span style="color: var(--text-muted); font-size: 0.9rem;">Sin mascotas registradas</span>
+                                        {% endif %}
+                                    {% endwith %}
+                                </td>
+                                <td style="text-align: center;">
+                                    <a href="{% url 'editar_dueño' dueno.id %}" class="btn btn-sm btn-primary">
+                                        ✏️ Editar Datos
+                                    </a>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="5" style="text-align: center; color: var(--text-muted); padding: 25px;">
+                                    {% if busqueda %}
+                                        No se encontraron dueños que coincidan con "{{ busqueda }}".
+                                    {% else %}
+                                        No hay dueños registrados en el sistema todavía.
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div style="text-align: center; margin-top: 25px;">
+                <a href="{% url 'inicio' %}" class="btn btn-secondary" style="min-width: 180px;">Volver al Menú</a>
+            </div>
+        </main>
+    </div>
+</body>
+</html>
+
